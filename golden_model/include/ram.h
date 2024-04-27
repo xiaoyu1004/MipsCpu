@@ -13,6 +13,7 @@ public:
     {
         ram_ptr_ = new int8_t[size];
     }
+    
     ~RAM()
     {
         delete[] ram_ptr_;

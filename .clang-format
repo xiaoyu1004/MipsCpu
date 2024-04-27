@@ -1,0 +1,14 @@
+Language: Cpp
+BasedOnStyle: Google
+AlignEscapedNewlinesLeft: false
+AlignOperands: false
+ColumnLimit: 100
+AlwaysBreakTemplateDeclarations: false
+DerivePointerAlignment: false
+IndentFunctionDeclarationAfterType: false
+MaxEmptyLinesToKeep: 1
+SortIncludes: false
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+AlignConsecutiveAssignments: true

@@ -3,6 +3,10 @@
     "editor.minimap.enabled": false,
     "files.autoSave": "afterDelay",
     "editor.fontSize": 14,
+    "clang-format.executable": "/usr/bin/clang-format",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.indentSize": "tabSize",
     "files.associations": {
         "*.tcc": "cpp"
     }
