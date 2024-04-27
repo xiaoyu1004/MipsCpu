@@ -47,7 +47,6 @@ class MipsCpu {
   int alu_op2_data_;
   int alu_out_;
   uint8_t rd_;
-  bool rf_wen_;
 };
 
 #endif

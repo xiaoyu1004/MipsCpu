@@ -3,8 +3,8 @@
 
 #include "ctrl.h"
 
-enum class InstOp {
-    ADD = 0,
+enum class InstType {
+  INST_ADD,
 };
 
 CtrlSignals get_ctrl_sigs(unsigned inst_bit);

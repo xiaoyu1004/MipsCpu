@@ -7,7 +7,7 @@ int MipsCpu::run() {
   inst_execute();
   inst_mem();
   inst_wb();
-  
+
   return 0;
 }
 
@@ -38,7 +38,7 @@ void MipsCpu::inst_decode() {
 
 void MipsCpu::inst_execute() {
   switch (ctrlsigs_.alu_op) {
-    case AluOp::ADD:
+    case AluOp::ALU_ADD:
       alu_out_ = alu_op1_data_ + alu_op2_data_;
     default:
       fatal_msg("invalid alu op");
@@ -49,7 +49,7 @@ void MipsCpu::inst_execute() {
 void MipsCpu::inst_mem() {}
 
 void MipsCpu::inst_wb() {
-  if (ctrlsigs_.rf_wen) {
+  if (ctrlsigs_.wb_en) {
     int rf_wdata = alu_out_;
     int rf_wnum  = rd_;
     reg_ptr_->set(rf_wnum, rf_wdata);
