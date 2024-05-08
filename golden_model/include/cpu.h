@@ -8,13 +8,13 @@
 
 #include <cstddef>
 
+constexpr unsigned XLEN    = 32U;
+constexpr size_t IRAM_SIZE = 16384u;
+constexpr size_t DRAM_SIZE = 32768u;
+
 class MipsCpu {
  public:
-  MipsCpu(size_t iram_size, size_t dram_size) : pc_(START_PC) {
-    reg_ptr_ = new RegFile;
-    iram_ptr_ = new RAM(iram_size);
-    dram_ptr_ = new RAM(dram_size);
-  }
+  MipsCpu(size_t iram_size = IRAM_SIZE, size_t dram_size = DRAM_SIZE);
 
   ~MipsCpu() {
     delete[] reg_ptr_;
@@ -23,6 +23,8 @@ class MipsCpu {
   }
 
  public:
+  void load_inst(int* iptr, size_t size);
+  void load_data(int8_t* dptr, size_t size);
   int run();
 
  private:
@@ -38,6 +40,10 @@ class MipsCpu {
   RAM* dram_ptr_;
 
  private:
+  size_t inst_size_;
+  size_t data_size_;
+
+ private:
   CtrlSignals ctrlsigs_;
   unsigned inst_bit_;
   unsigned pc_;
@@ -46,7 +52,8 @@ class MipsCpu {
   int alu_op1_data_;
   int alu_op2_data_;
   int alu_out_;
-  uint8_t rd_;
+  uint8_t rd_addr_;
+  bool int_overflow_;
 };
 
 #endif

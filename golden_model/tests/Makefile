@@ -1,29 +1,25 @@
-base_dir = $(abspath ..)
+BASE_DIR = $(abspath ..)
+ROOT_DIR = $(BASE_DIR)/..
 
-GOLDEN_MODEL_TESTS_DIR = $(base_dir)/tests
-GOLDEN_MODEL_OBJS_DIR = $(base_dir)/objs
-INCLUDES = $(base_dir)/include
+GOLDEN_MODEL_TESTS_DIR = $(BASE_DIR)/tests
+GOLDEN_MODEL_OBJS_DIR = $(ROOT_DIR)/build
+INCLUDES = $(BASE_DIR)/include
 
-GOLDEN_MODEL_TESTS = main.cpp
-GOLDEN_MODEL_TESTS_OBJS = $(foreach f, $(GOLDEN_MODEL_TESTS), $(patsubst %.cpp, $(GOLDEN_MODEL_OBJS_DIR)/%.o, $f))
+GOLDEN_MODEL_TEST_SRCS = run_gdmodel_tests.cpp
 
-GOLDEN_MODEL_TESTS_TARGET = $(GOLDEN_MODEL_OBJS_DIR)/run_golden_model_tests
-all: $(GOLDEN_MODEL_TESTS_TARGET)
+GOLDEN_MODEL_TESTS_TARGET = $(GOLDEN_MODEL_OBJS_DIR)/run_gdmodel_tests
 
 CC = /usr/bin/g++
-CCFLAGS = -std=c++11 -Werror -I$(INCLUDES)
+CCFLAGS = -g -std=c++11 -Werror -I$(INCLUDES) -lmips32_cmodel -L$(GOLDEN_MODEL_OBJS_DIR) -Wl,-rpath,$(GOLDEN_MODEL_OBJS_DIR)
 
-$(GOLDEN_MODEL_OBJS_DIR)/%.o: %.cpp
-	$(CC) $(CCFLAGS) -c -o $@ $<
+all: $(GOLDEN_MODEL_TESTS_TARGET)
+	make -C insts
 
-$(GOLDEN_MODEL_TESTS_TARGET): $(GOLDEN_MODEL_TESTS_OBJS)
-	$(CC) $(CCFLAGS) -o $@ $^
-
-# mips
-MIPS_GCC = mipsel-linux-gnu-gcc
-MIPS_CXXFLAGS = 
+$(GOLDEN_MODEL_TESTS_TARGET): $(GOLDEN_MODEL_TEST_SRCS)
+	$(CC) $^ $(CCFLAGS) -o $@ 
 
 clean:
-	rm -rf $(GOLDEN_MODEL_TESTS_OBJS)
+	rm -rf $(GOLDEN_MODEL_TESTS_TARGET)
+	make clean -C insts
 
 .PHONY: clean all

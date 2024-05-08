@@ -1,6 +1,8 @@
 #ifndef CTRL_H
 #define CTRL_H
 
+#include "inst.h"
+
 #include <bitset>
 
 constexpr unsigned START_PC = 0x00000000U;
@@ -60,5 +62,8 @@ struct CtrlSignals {
   WbSel wb_sel;
   bool wb_en;
 };
+
+CtrlSignals get_ctrl_sigs(unsigned inst_bit);
+CtrlSignals get_default_ctrl_sigs();
 
 #endif

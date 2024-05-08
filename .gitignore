@@ -1,2 +1,6 @@
 objs/
 .vscode/
+build/
+*.txt
+*dump
+*hex
