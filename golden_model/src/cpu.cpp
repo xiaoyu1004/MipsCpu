@@ -5,13 +5,13 @@
 
 extern std::map<InstType, CtrlSignals> CtrlsigsMap;
 
-MipsCpu::MipsCpu(size_t iram_size, size_t dram_size) : pc_(START_PC) {
+MipsCpu::MipsCpu(size_t iram_size, size_t dram_size) {
   reg_ptr_ = new RegFile;
 
   iram_ptr_ = new RAM(iram_size);
   dram_ptr_ = new RAM(dram_size);
 
-  ctrlsigs_ = get_default_ctrl_sigs();
+  // ctrlsigs_ = get_default_ctrl_sigs();
 }
 
 void MipsCpu::load_inst(int* iptr, size_t size) {
@@ -34,95 +34,137 @@ void MipsCpu::load_data(int8_t* dptr, size_t size) {
 
 int MipsCpu::run() {
   while (true) {
-    if (pc_ >= (inst_size_ / 4)) {
+    inst_wb();
+    if (mem2wb_pipe_reg_.pc >= (inst_size_ / 4 - 4)) {
       std::cout << "cpu run finish" << std::endl;
       break;
     }
-    inst_fetch();
-    inst_decode();
-    inst_execute();
+
     inst_mem();
-    inst_wb();
+    inst_execute();
+    inst_decode();
+    inst_fetch();
   }
 
   return 0;
 }
 
 void MipsCpu::inst_fetch() {
-  if (pc_ % 4 != 0) {
+  static unsigned pc = START_PC;
+
+  if (pc % 4 != 0) {
     fatal_msg("pc must be multiple of 4");
   }
 
   unsigned next_pc;
-  switch (ctrlsigs_.pc_sel) {
+  switch (if_input_.pc_sel) {
     case PcSel::PC_0:
-      next_pc = pc_;
+      next_pc = pc;
       break;
     case PcSel::PC_4:
-      next_pc = pc_ + 4;
+      next_pc = pc + 4;
       break;
     default:
       fatal_msg("invalid pc_sel");
       break;
   }
 
-  inst_bit_ = static_cast<unsigned>(iram_ptr_->get_word(next_pc));
+  pc = next_pc;
+
+  if2id_pipe_reg_.pc   = pc;
+  if2id_pipe_reg_.inst = static_cast<unsigned>(iram_ptr_->get_word(pc));
 }
 
 void MipsCpu::inst_decode() {
-  uint8_t rs1_addr = inst_bit_ << 6 >> 27;
-  uint8_t rs2_addr = inst_bit_ << 11 >> 27;
-  rs1_data_        = reg_ptr_->get(rs1_addr);
-  rs2_data_        = reg_ptr_->get(rs2_addr);
+  uint8_t rs1_addr = if2id_pipe_reg_.inst << 6 >> 27;
+  uint8_t rs2_addr = if2id_pipe_reg_.inst << 11 >> 27;
+  int rs1_data     = reg_ptr_->get(rs1_addr);
+  int rs2_data     = reg_ptr_->get(rs2_addr);
 
-  rd_addr_ = inst_bit_ << 16 >> 27;
+  uint8_t rd_addr = if2id_pipe_reg_.inst << 16 >> 27;
 
-  ctrlsigs_ = get_ctrl_sigs(inst_bit_);
+  CtrlSignals ctrlsigs = get_ctrl_sigs(if2id_pipe_reg_.inst);
 
   // op1
-  switch (ctrlsigs_.op1_sel) {
+  int op1_data;
+  switch (ctrlsigs.op1_sel) {
     case Op1Sel::OP1_RS1:
-      alu_op1_data_ = rs1_data_;
+      op1_data = rs1_data;
       break;
   }
 
   // op2
-  switch (ctrlsigs_.op2_sel) {
+  int op2_data;
+  switch (ctrlsigs.op2_sel) {
     case Op2Sel::OP2_RS2:
-      alu_op2_data_ = rs2_data_;
+      op2_data = rs2_data;
       break;
   }
+
+  id2ex_pipe_reg_.pc           = if2id_pipe_reg_.pc;
+  id2ex_pipe_reg_.alu_op       = ctrlsigs.alu_op;
+  id2ex_pipe_reg_.alu_op1_data = op1_data;
+  id2ex_pipe_reg_.alu_op2_data = op2_data;
+  id2ex_pipe_reg_.ld_type      = ctrlsigs.ld_type;
+  id2ex_pipe_reg_.st_type      = ctrlsigs.st_type;
+  id2ex_pipe_reg_.wb_sel       = ctrlsigs.wb_sel;
+  id2ex_pipe_reg_.rf_waddr     = rd_addr;
+  id2ex_pipe_reg_.wb_en        = ctrlsigs.wb_en;
 }
 
 void MipsCpu::inst_execute() {
-  switch (ctrlsigs_.alu_op) {
+  int op1_data = id2ex_pipe_reg_.alu_op1_data;
+  int op2_data = id2ex_pipe_reg_.alu_op2_data;
+
+  int alu_out;
+  switch (id2ex_pipe_reg_.alu_op) {
     case AluOp::ALU_ADD:
-      alu_out_ = alu_op1_data_ + alu_op2_data_;
+      alu_out = op1_data + op2_data;
+      break;
     default:
       fatal_msg("invalid alu op");
       break;
   }
 
-  // overflow
-  int_overflow_ = ((alu_op1_data_ < 0 && alu_op2_data_ < 0 && alu_out_ > 0) ||
-                   (alu_op1_data_ > 0 && alu_op2_data_ > 0 && alu_out_ < 0));
+  ex2mem_pipe_reg_.pc       = id2ex_pipe_reg_.pc;
+  ex2mem_pipe_reg_.alu_out  = alu_out;
+  ex2mem_pipe_reg_.ld_type  = id2ex_pipe_reg_.ld_type;
+  ex2mem_pipe_reg_.st_type  = id2ex_pipe_reg_.st_type;
+  ex2mem_pipe_reg_.wb_sel   = id2ex_pipe_reg_.wb_sel;
+  ex2mem_pipe_reg_.rf_waddr = id2ex_pipe_reg_.rf_waddr;
+  ex2mem_pipe_reg_.wb_en    = id2ex_pipe_reg_.wb_en;
 }
 
-void MipsCpu::inst_mem() {}
+void MipsCpu::inst_mem() {
+  int load_data;
+  switch (ex2mem_pipe_reg_.ld_type) {
+    case LoadType::LD_W:
+      break;
+    default:
+      fatal_msg("invalid load type");
+      break;
+  }
+
+  mem2wb_pipe_reg_.pc       = ex2mem_pipe_reg_.pc;
+  mem2wb_pipe_reg_.alu_out  = ex2mem_pipe_reg_.alu_out;
+  mem2wb_pipe_reg_.wb_sel   = ex2mem_pipe_reg_.wb_sel;
+  mem2wb_pipe_reg_.rf_waddr = ex2mem_pipe_reg_.rf_waddr;
+  mem2wb_pipe_reg_.wb_en    = ex2mem_pipe_reg_.wb_en;
+}
 
 void MipsCpu::inst_wb() {
   // wb data
   int rf_wdata;
-  switch (ctrlsigs_.wb_sel) {
+  switch (mem2wb_pipe_reg_.wb_sel) {
     case WbSel::WB_ALU:
-      rf_wdata = alu_out_;
+      rf_wdata = mem2wb_pipe_reg_.alu_out;
       break;
   }
 
   // wb rnum
-  int rf_wnum = rd_addr_;
+  int rf_wnum = mem2wb_pipe_reg_.rf_waddr;
 
-  if (ctrlsigs_.wb_en) {
+  if (mem2wb_pipe_reg_.wb_en) {
     reg_ptr_->set(rf_wnum, rf_wdata);
   }
 }
