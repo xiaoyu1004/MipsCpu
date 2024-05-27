@@ -20,17 +20,16 @@ int main(int argc, const char* argv[]) {
   std::cout << "open test hex success: " << test_fname << std::endl;
 
   std::vector<int> inst_vec;
-  inst_vec.reserve(20);
 
   std::string line;
   while (std::getline(fs, line)) {
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
-    inst_vec.push_back(std::stoi(line));
+    unsigned hex;
+    sscanf(line.c_str(), "%x", &hex);
+    inst_vec.push_back(hex);
   }
 
   fs.close();
-
-  std::cout << inst_vec.size() << std::endl;
 
   MipsCpu mipscpu;
   mipscpu.load_inst(inst_vec.data(), inst_vec.size());
