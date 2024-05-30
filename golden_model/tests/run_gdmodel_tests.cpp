@@ -31,8 +31,9 @@ int main(int argc, const char* argv[]) {
 
   fs.close();
 
-  MipsCpu mipscpu;
-  mipscpu.load_inst(inst_vec.data(), inst_vec.size());
+  MipsCpu* mipscpu = new MipsCpu;
+  mipscpu->load_inst(inst_vec.data(), inst_vec.size());
   // mipscpu.load_data();
-  mipscpu.run();
+  mipscpu->run();
+  delete mipscpu;
 }

@@ -3,7 +3,7 @@
 
 #include <map>
 
-enum class InstType { DEFAULT, ADDU, ADDIU, SLL };
+enum class InstType { DEFAULT, ADDU, ADDIU, SUBU, SLL };
 
 extern std::map<InstType, std::string> InstsMap;
 

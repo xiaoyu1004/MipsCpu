@@ -9,10 +9,11 @@
 
 // clang-format off
 std::map<InstType, CtrlSignals> CtrlsigsMap = {
-  {InstType::DEFAULT, {.pc_sel  = PcSel::PC_0, .op1_sel = Op1Sel::OP1_X, .op2_sel = Op2Sel::OP2_X, .alu_op  = AluOp::ALU_ADD, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_X, .rf_waddr_sel = WbAddrSel::WB_ADDR_X, .wb_en  = false}},
-  {InstType::ADDU, {.pc_sel  = PcSel::PC_4, .op1_sel = Op1Sel::OP1_RS, .op2_sel = Op2Sel::OP2_RT, .alu_op  = AluOp::ALU_ADD, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_ALU, .rf_waddr_sel = WbAddrSel::WB_ADDR_RD, .wb_en  = true}},
-  {InstType::ADDIU, {.pc_sel  = PcSel::PC_4, .op1_sel = Op1Sel::OP1_RS, .op2_sel = Op2Sel::OP2_IMM, .alu_op  = AluOp::ALU_ADD, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_ALU, .rf_waddr_sel = WbAddrSel::WB_ADDR_RT, .wb_en  = true}},
-  {InstType::SLL, {.pc_sel  = PcSel::PC_4, .op1_sel = Op1Sel::OP1_RT, .op2_sel = Op2Sel::OP2_SA, .alu_op  = AluOp::ALU_SLL, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_ALU, .rf_waddr_sel = WbAddrSel::WB_ADDR_RD, .wb_en  = true}},
+  {InstType::DEFAULT, {.pc_sel  = PcSel::PC_0, .op1_sel = Op1Sel::OP1_X, .op2_sel = Op2Sel::OP2_X, .alu_op  = AluOp::ALU_ADD, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_X, .rf_waddr_sel = WbAddrSel::WB_ADDR_X, .rf_wen  = false}},
+  {InstType::ADDU, {.pc_sel  = PcSel::PC_4, .op1_sel = Op1Sel::OP1_RS, .op2_sel = Op2Sel::OP2_RT, .alu_op  = AluOp::ALU_ADD, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_ALU, .rf_waddr_sel = WbAddrSel::WB_ADDR_RD, .rf_wen  = true}},
+  {InstType::ADDIU, {.pc_sel  = PcSel::PC_4, .op1_sel = Op1Sel::OP1_RS, .op2_sel = Op2Sel::OP2_IMM, .alu_op  = AluOp::ALU_ADD, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_ALU, .rf_waddr_sel = WbAddrSel::WB_ADDR_RT, .rf_wen  = true}},
+  {InstType::SUBU, {.pc_sel  = PcSel::PC_4, .op1_sel = Op1Sel::OP1_RS, .op2_sel = Op2Sel::OP2_RT, .alu_op  = AluOp::ALU_SUB, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_ALU, .rf_waddr_sel = WbAddrSel::WB_ADDR_RD, .rf_wen  = true}},
+  {InstType::SLL, {.pc_sel  = PcSel::PC_4, .op1_sel = Op1Sel::OP1_RT, .op2_sel = Op2Sel::OP2_SA, .alu_op  = AluOp::ALU_SLL, .br_type = BrType::BR_X, .st_type = StoreType::ST_X, .ld_type = LoadType::LD_X, .rf_wdata_sel  = WbDataSel::WB_DATA_ALU, .rf_waddr_sel = WbAddrSel::WB_ADDR_RD, .rf_wen  = true}},
 };
 // clang-format on
 

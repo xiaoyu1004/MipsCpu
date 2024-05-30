@@ -19,9 +19,7 @@ enum class Op2Sel { OP2_X, OP2_RT, OP2_SA, OP2_IMM };
 
 enum class AluOp {
   ALU_ADD,
-  ALU_ADDU,
   ALU_SUB,
-  ALU_SUBU,
   ALU_SLL,
   ALU_SLT,
   ALU_SLTU,
@@ -61,7 +59,7 @@ struct CtrlSignals {
   LoadType ld_type;
   WbDataSel rf_wdata_sel;
   WbAddrSel rf_waddr_sel;
-  bool wb_en;
+  bool rf_wen;
 };
 
 CtrlSignals get_ctrl_sigs(unsigned inst_bit);

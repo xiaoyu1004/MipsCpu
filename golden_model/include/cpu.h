@@ -33,7 +33,7 @@ struct ID2EXPipeReg {
   WbDataSel rf_wdata_sel = WbDataSel::WB_DATA_X;
   WbAddrSel rf_waddr_sel = WbAddrSel::WB_ADDR_X;
   uint8_t rf_waddr       = 0;
-  bool wb_en             = false;
+  bool rf_wen            = false;
 };
 
 struct EX2MEMPipeReg {
@@ -45,7 +45,7 @@ struct EX2MEMPipeReg {
   WbDataSel rf_wdata_sel = WbDataSel::WB_DATA_X;
   WbAddrSel rf_waddr_sel = WbAddrSel::WB_ADDR_X;
   uint8_t rf_waddr       = 0;
-  bool wb_en             = false;
+  bool rf_wen            = false;
 };
 
 struct MEM2WBPipeReg {
@@ -55,7 +55,7 @@ struct MEM2WBPipeReg {
   WbDataSel rf_wdata_sel = WbDataSel::WB_DATA_X;
   WbAddrSel rf_waddr_sel = WbAddrSel::WB_ADDR_X;
   uint8_t rf_waddr       = 0;
-  bool wb_en             = false;
+  bool rf_wen            = false;
 };
 
 struct IFInput {
