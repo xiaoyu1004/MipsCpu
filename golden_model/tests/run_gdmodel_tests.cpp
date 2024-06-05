@@ -31,9 +31,11 @@ int main(int argc, const char* argv[]) {
 
   fs.close();
 
+  std::vector<int> data_vec{8, 7, 6, 5, 4, 3, 2, 1};
+
   MipsCpu* mipscpu = new MipsCpu;
-  mipscpu->load_inst(inst_vec.data(), inst_vec.size());
-  // mipscpu.load_data();
+  mipscpu->load_inst(reinterpret_cast<int8_t*>(inst_vec.data()), inst_vec.size() * sizeof(int));
+  mipscpu->load_data(reinterpret_cast<int8_t*>(data_vec.data()), data_vec.size() * sizeof(int));
   mipscpu->run();
   delete mipscpu;
 }

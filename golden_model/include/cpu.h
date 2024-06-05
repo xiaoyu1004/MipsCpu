@@ -30,6 +30,7 @@ struct ID2EXPipeReg {
   int alu_op2_data       = 0;
   LoadType ld_type       = LoadType::LD_X;
   StoreType st_type      = StoreType::ST_X;
+  int st_data            = 0;
   WbDataSel rf_wdata_sel = WbDataSel::WB_DATA_X;
   WbAddrSel rf_waddr_sel = WbAddrSel::WB_ADDR_X;
   uint8_t rf_waddr       = 0;
@@ -42,6 +43,7 @@ struct EX2MEMPipeReg {
   int alu_out            = 0;
   LoadType ld_type       = LoadType::LD_X;
   StoreType st_type      = StoreType::ST_X;
+  int st_data            = 0;
   WbDataSel rf_wdata_sel = WbDataSel::WB_DATA_X;
   WbAddrSel rf_waddr_sel = WbAddrSel::WB_ADDR_X;
   uint8_t rf_waddr       = 0;
@@ -51,7 +53,8 @@ struct EX2MEMPipeReg {
 struct MEM2WBPipeReg {
   bool mem2wb_valid      = false;
   unsigned pc            = START_PC;
-  int rf_wdata           = 0;
+  int alu_out            = 0;
+  int mem_data           = 0;
   WbDataSel rf_wdata_sel = WbDataSel::WB_DATA_X;
   WbAddrSel rf_waddr_sel = WbAddrSel::WB_ADDR_X;
   uint8_t rf_waddr       = 0;
@@ -60,10 +63,12 @@ struct MEM2WBPipeReg {
 
 struct IFInput {
   PcSel pc_sel = PcSel::PC_0;
+  bool stall;
 };
 
 struct EX2IDForwarding {
   bool valid;
+  bool is_load;
   uint8_t rf_waddr;
   int alu_out;
 };
@@ -93,7 +98,7 @@ class MipsCpu {
   ~MipsCpu();
 
  public:
-  void load_inst(int* iptr, size_t size);
+  void load_inst(int8_t* iptr, size_t size);
   void load_data(int8_t* dptr, size_t size);
   int run();
 

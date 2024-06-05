@@ -17,6 +17,9 @@ enum class Op1Sel { OP1_X, OP1_RS, OP1_RT, OP1_PC };
 // op2_sel
 enum class Op2Sel { OP2_X, OP2_RT, OP2_SA, OP2_IMM };
 
+// imm_sel
+enum class ImmSel { IMM_X, IMM_S, IMM_U, IMM_Z};
+
 enum class AluOp {
   ALU_ADD,
   ALU_SUB,
@@ -53,6 +56,7 @@ struct CtrlSignals {
   PcSel pc_sel;
   Op1Sel op1_sel;
   Op2Sel op2_sel;
+  ImmSel imm_sel;
   AluOp alu_op;
   BrType br_type;
   StoreType st_type;

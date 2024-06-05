@@ -22,13 +22,13 @@ MipsCpu::~MipsCpu() {
   trace_.close();
 }
 
-void MipsCpu::load_inst(int* iptr, size_t size) {
+void MipsCpu::load_inst(int8_t* iptr, size_t size) {
   if (!iptr) {
     fatal_msg("invalid inst ptr");
   }
   inst_size_ = size;
   for (size_t i = 0; i < size; ++i) {
-    iram_ptr_->set_word(i * (XLEN / 8), iptr[i]);
+    iram_ptr_->set_word(i, iptr[i]);
   }
 }
 
@@ -37,14 +37,16 @@ void MipsCpu::load_data(int8_t* dptr, size_t size) {
     fatal_msg("invalid data ptr");
   }
   data_size_ = size;
-  memcpy(dram_ptr_, dptr, size);
+  for (size_t i = 0; i < size; ++i) {
+    dram_ptr_->set_word(i, dptr[i]);
+  }
 }
 
 int MipsCpu::run() {
   while (true) {
     ++exec_cycles_;
     inst_wb();
-    if (mem2wb_pipe_reg_.pc >= (inst_size_ - 1) * (XLEN / 8)) {
+    if (mem2wb_pipe_reg_.pc >= (inst_size_ - 1)) {
       std::cout << "cpu run finish, run " << exec_cycles_ << " cycle" << std::endl;
       break;
     }
@@ -78,6 +80,8 @@ void MipsCpu::inst_fetch() {
       break;
   }
 
+  if (if_stage_input_.stall) return;
+
   pc = next_pc;
 
   if2id_pipe_reg_.if2id_valid = true;
@@ -92,9 +96,12 @@ void MipsCpu::inst_decode() {
   uint8_t rt_addr = if2id_pipe_reg_.inst << 11 >> 27;
 
   // rs forwarding
-  bool rs_ex_fw  = id_stage_input_.ex2id_fw.valid && id_stage_input_.ex2id_fw.rf_waddr == rs_addr;
-  bool rs_mem_fw = id_stage_input_.mem2id_fw.valid && id_stage_input_.mem2id_fw.rf_waddr == rs_addr;
-  bool rs_wb_fw  = id_stage_input_.wb2id_fw.valid && id_stage_input_.wb2id_fw.rf_waddr == rs_addr;
+  bool rs_ex_fw = id_stage_input_.ex2id_fw.valid && id_stage_input_.ex2id_fw.rf_waddr == rs_addr &&
+      rs_addr != 0;
+  bool rs_mem_fw = id_stage_input_.mem2id_fw.valid &&
+      id_stage_input_.mem2id_fw.rf_waddr == rs_addr && rs_addr != 0;
+  bool rs_wb_fw = id_stage_input_.wb2id_fw.valid && id_stage_input_.wb2id_fw.rf_waddr == rs_addr &&
+      rs_addr != 0;
 
   int rs_data;
   if (rs_ex_fw) {
@@ -108,9 +115,12 @@ void MipsCpu::inst_decode() {
   }
 
   // rt forwarding
-  bool rt_ex_fw  = id_stage_input_.ex2id_fw.valid && id_stage_input_.ex2id_fw.rf_waddr == rt_addr;
-  bool rt_mem_fw = id_stage_input_.mem2id_fw.valid && id_stage_input_.mem2id_fw.rf_waddr == rt_addr;
-  bool rt_wb_fw  = id_stage_input_.wb2id_fw.valid && id_stage_input_.wb2id_fw.rf_waddr == rt_addr;
+  bool rt_ex_fw = id_stage_input_.ex2id_fw.valid && id_stage_input_.ex2id_fw.rf_waddr == rt_addr &&
+      rt_addr != 0;
+  bool rt_mem_fw = id_stage_input_.mem2id_fw.valid &&
+      id_stage_input_.mem2id_fw.rf_waddr == rt_addr && rt_addr != 0;
+  bool rt_wb_fw = id_stage_input_.wb2id_fw.valid && id_stage_input_.wb2id_fw.rf_waddr == rt_addr &&
+      rt_addr != 0;
 
   int rt_data;
   if (rt_ex_fw) {
@@ -126,6 +136,14 @@ void MipsCpu::inst_decode() {
   uint8_t rd_addr = if2id_pipe_reg_.inst << 16 >> 27;
 
   CtrlSignals ctrlsigs = get_ctrl_sigs(if2id_pipe_reg_.inst);
+
+  bool load_hazard = (rs_ex_fw || rt_ex_fw) && id_stage_input_.ex2id_fw.is_load;
+  bool stall       = load_hazard;
+
+  // imm
+  unsigned usext_imm_data = if2id_pipe_reg_.inst << 16 >> 16;
+  bool imm_lt_0           = (usext_imm_data & 0x00008000) != 0;
+  int sext_imm_data       = imm_lt_0 ? (usext_imm_data | 0xffff0000) : usext_imm_data;
 
   // op1
   int op1_data;
@@ -150,10 +168,10 @@ void MipsCpu::inst_decode() {
       break;
     }
     case Op2Sel::OP2_IMM: {
-      int imm_data = if2id_pipe_reg_.inst << 16 >> 16;
-      op2_data     = imm_data;
-      if ((if2id_pipe_reg_.inst & 0x00008000) != 0) {
-        op2_data |= 0xffff0000;
+      if (ctrlsigs.imm_sel == ImmSel::IMM_S) {
+        op2_data = sext_imm_data;
+      } else if (ctrlsigs.imm_sel == ImmSel::IMM_U) {
+        op2_data = usext_imm_data;
       }
       break;
     }
@@ -170,13 +188,14 @@ void MipsCpu::inst_decode() {
       break;
   }
 
-  id2ex_pipe_reg_.id2ex_valid  = if2id_pipe_reg_.if2id_valid;
+  id2ex_pipe_reg_.id2ex_valid  = if2id_pipe_reg_.if2id_valid && !stall;
   id2ex_pipe_reg_.pc           = if2id_pipe_reg_.pc;
   id2ex_pipe_reg_.alu_op       = ctrlsigs.alu_op;
   id2ex_pipe_reg_.alu_op1_data = op1_data;
   id2ex_pipe_reg_.alu_op2_data = op2_data;
   id2ex_pipe_reg_.ld_type      = ctrlsigs.ld_type;
   id2ex_pipe_reg_.st_type      = ctrlsigs.st_type;
+  id2ex_pipe_reg_.st_data      = rt_data;
   id2ex_pipe_reg_.rf_wdata_sel = ctrlsigs.rf_wdata_sel;
   id2ex_pipe_reg_.rf_waddr     = rf_waddr;
   id2ex_pipe_reg_.rf_wen       = ctrlsigs.rf_wen;
@@ -184,6 +203,7 @@ void MipsCpu::inst_decode() {
   if (id2ex_pipe_reg_.id2ex_valid) {
     if_stage_input_.pc_sel = ctrlsigs.pc_sel;
   }
+  if_stage_input_.stall = stall;
 }
 
 void MipsCpu::inst_execute() {
@@ -212,6 +232,7 @@ void MipsCpu::inst_execute() {
   ex2mem_pipe_reg_.alu_out      = alu_out;
   ex2mem_pipe_reg_.ld_type      = id2ex_pipe_reg_.ld_type;
   ex2mem_pipe_reg_.st_type      = id2ex_pipe_reg_.st_type;
+  ex2mem_pipe_reg_.st_data      = id2ex_pipe_reg_.st_data;
   ex2mem_pipe_reg_.rf_wdata_sel = id2ex_pipe_reg_.rf_wdata_sel;
   ex2mem_pipe_reg_.rf_waddr     = id2ex_pipe_reg_.rf_waddr;
   ex2mem_pipe_reg_.rf_wen       = id2ex_pipe_reg_.rf_wen;
@@ -220,22 +241,30 @@ void MipsCpu::inst_execute() {
   id_stage_input_.ex2id_fw.valid    = id2ex_pipe_reg_.id2ex_valid;
   id_stage_input_.ex2id_fw.rf_waddr = id2ex_pipe_reg_.rf_waddr;
   id_stage_input_.ex2id_fw.alu_out  = alu_out;
+  id_stage_input_.ex2id_fw.is_load  = id2ex_pipe_reg_.ld_type != LoadType::LD_X;
 }
 
 void MipsCpu::inst_mem() {
+  if (!ex2mem_pipe_reg_.ex2mem_valid) return;
+
   int mem_data;
   switch (ex2mem_pipe_reg_.ld_type) {
     case LoadType::LD_W:
+      mem_data = dram_ptr_->get_word(ex2mem_pipe_reg_.alu_out);
       break;
-    default:
-      mem_data = ex2mem_pipe_reg_.alu_out;
+  }
+
+  switch (ex2mem_pipe_reg_.st_type) {
+    case StoreType::ST_W:
+      dram_ptr_->set_word(ex2mem_pipe_reg_.alu_out, ex2mem_pipe_reg_.st_data);
       break;
   }
 
   // to wb
   mem2wb_pipe_reg_.mem2wb_valid = ex2mem_pipe_reg_.ex2mem_valid;
   mem2wb_pipe_reg_.pc           = ex2mem_pipe_reg_.pc;
-  mem2wb_pipe_reg_.rf_wdata     = mem_data;
+  mem2wb_pipe_reg_.alu_out      = ex2mem_pipe_reg_.alu_out;
+  mem2wb_pipe_reg_.mem_data     = mem_data;
   mem2wb_pipe_reg_.rf_wdata_sel = ex2mem_pipe_reg_.rf_wdata_sel;
   mem2wb_pipe_reg_.rf_waddr     = ex2mem_pipe_reg_.rf_waddr;
   mem2wb_pipe_reg_.rf_wen       = ex2mem_pipe_reg_.rf_wen;
@@ -251,7 +280,10 @@ void MipsCpu::inst_wb() {
   int rf_wdata;
   switch (mem2wb_pipe_reg_.rf_wdata_sel) {
     case WbDataSel::WB_DATA_ALU:
-      rf_wdata = mem2wb_pipe_reg_.rf_wdata;
+      rf_wdata = mem2wb_pipe_reg_.alu_out;
+      break;
+    case WbDataSel::WB_DATA_MEM:
+      rf_wdata = mem2wb_pipe_reg_.mem_data;
       break;
   }
 
