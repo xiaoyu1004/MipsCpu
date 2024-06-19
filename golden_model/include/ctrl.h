@@ -9,7 +9,7 @@ constexpr unsigned START_PC = 0x00000000U;
 constexpr unsigned WORD_LEN = 32u;
 
 // pc_sel
-enum class PcSel { PC_0, PC_4, PC_ALU };
+enum class PcSel { PC_0, PC_4 };
 
 // op1_sel
 enum class Op1Sel { OP1_X, OP1_RS, OP1_RT, OP1_PC };
@@ -18,7 +18,7 @@ enum class Op1Sel { OP1_X, OP1_RS, OP1_RT, OP1_PC };
 enum class Op2Sel { OP2_X, OP2_RT, OP2_SA, OP2_IMM };
 
 // imm_sel
-enum class ImmSel { IMM_X, IMM_S, IMM_U, IMM_Z};
+enum class ImmSel { IMM_X, IMM_S, IMM_SLL_2_S, IMM_U, IMM_Z };
 
 enum class AluOp {
   ALU_ADD,

@@ -15,9 +15,9 @@ MipsCpu::MipsCpu(size_t iram_size, size_t dram_size) : exec_cycles_(0) {
 }
 
 MipsCpu::~MipsCpu() {
-  delete reg_ptr_;
-  delete iram_ptr_;
-  delete dram_ptr_;
+  // delete reg_ptr_;
+  // delete iram_ptr_;
+  // delete dram_ptr_;
 
   trace_.close();
 }
@@ -46,7 +46,7 @@ int MipsCpu::run() {
   while (true) {
     ++exec_cycles_;
     inst_wb();
-    if (mem2wb_pipe_reg_.pc >= (inst_size_ - 1)) {
+    if (mem2wb_pipe_reg_.pc >= (inst_size_ - 4)) {
       std::cout << "cpu run finish, run " << exec_cycles_ << " cycle" << std::endl;
       break;
     }
@@ -68,16 +68,20 @@ void MipsCpu::inst_fetch() {
   }
 
   unsigned next_pc;
-  switch (if_stage_input_.pc_sel) {
-    case PcSel::PC_0:
-      next_pc = pc;
-      break;
-    case PcSel::PC_4:
-      next_pc = pc + 4;
-      break;
-    default:
-      fatal_msg("invalid pc_sel");
-      break;
+  if (br_delay_slot_) {
+    next_pc = br_delay_slot_pc_;
+  } else {
+    switch (if_stage_input_.pc_sel) {
+      case PcSel::PC_0:
+        next_pc = pc;
+        break;
+      case PcSel::PC_4:
+        next_pc = pc + 4;
+        break;
+      default:
+        fatal_msg("invalid pc_sel");
+        break;
+    }
   }
 
   if (if_stage_input_.stall) return;
@@ -89,6 +93,13 @@ void MipsCpu::inst_fetch() {
   unsigned ori_inst           = static_cast<unsigned>(iram_ptr_->get_word(pc));
   if2id_pipe_reg_.inst        = ((ori_inst >> 24) & 0xff) | ((ori_inst >> 8) & 0xff00) |
       ((ori_inst << 8) & 0xff0000) | ((ori_inst << 24) & 0xff000000);
+
+  if (if_stage_input_.br_en) {
+    br_delay_slot_    = true;
+    br_delay_slot_pc_ = if_stage_input_.br_addr;
+  } else {
+    br_delay_slot_ = false;
+  }
 }
 
 void MipsCpu::inst_decode() {
@@ -145,6 +156,17 @@ void MipsCpu::inst_decode() {
   bool imm_lt_0           = (usext_imm_data & 0x00008000) != 0;
   int sext_imm_data       = imm_lt_0 ? (usext_imm_data | 0xffff0000) : usext_imm_data;
 
+  int imm_data;
+  if (ctrlsigs.imm_sel == ImmSel::IMM_S) {
+    imm_data = sext_imm_data;
+  } else if (ctrlsigs.imm_sel == ImmSel::IMM_U) {
+    imm_data = usext_imm_data;
+  } else if (ctrlsigs.imm_sel == ImmSel::IMM_SLL_2_S) {
+    int imm_sll_data = usext_imm_data << 2;
+    int s_bit        = imm_sll_data & 0x00008000;
+    imm_data         = s_bit ? (imm_sll_data | 0xffff0000) : (imm_sll_data & 0x0000ffff);
+  }
+
   // op1
   int op1_data;
   switch (ctrlsigs.op1_sel) {
@@ -168,13 +190,17 @@ void MipsCpu::inst_decode() {
       break;
     }
     case Op2Sel::OP2_IMM: {
-      if (ctrlsigs.imm_sel == ImmSel::IMM_S) {
-        op2_data = sext_imm_data;
-      } else if (ctrlsigs.imm_sel == ImmSel::IMM_U) {
-        op2_data = usext_imm_data;
-      }
+      op2_data = imm_data;
       break;
     }
+  }
+
+  // branch
+  bool br_en = false;
+  if (ctrlsigs.br_type == BrType::BR_EQ) {
+    br_en = (op1_data == op2_data);
+  } else if (ctrlsigs.br_type == BrType::BR_NE) {
+    br_en = (op1_data != op2_data);
   }
 
   // rf_waddr
@@ -203,7 +229,9 @@ void MipsCpu::inst_decode() {
   if (id2ex_pipe_reg_.id2ex_valid) {
     if_stage_input_.pc_sel = ctrlsigs.pc_sel;
   }
-  if_stage_input_.stall = stall;
+  if_stage_input_.stall   = stall;
+  if_stage_input_.br_en   = br_en;
+  if_stage_input_.br_addr = if2id_pipe_reg_.pc + 4 + imm_data;
 }
 
 void MipsCpu::inst_execute() {
@@ -245,19 +273,19 @@ void MipsCpu::inst_execute() {
 }
 
 void MipsCpu::inst_mem() {
-  if (!ex2mem_pipe_reg_.ex2mem_valid) return;
-
   int mem_data;
-  switch (ex2mem_pipe_reg_.ld_type) {
-    case LoadType::LD_W:
-      mem_data = dram_ptr_->get_word(ex2mem_pipe_reg_.alu_out);
-      break;
-  }
+  if (ex2mem_pipe_reg_.ex2mem_valid) {
+    switch (ex2mem_pipe_reg_.ld_type) {
+      case LoadType::LD_W:
+        mem_data = dram_ptr_->get_word(ex2mem_pipe_reg_.alu_out);
+        break;
+    }
 
-  switch (ex2mem_pipe_reg_.st_type) {
-    case StoreType::ST_W:
-      dram_ptr_->set_word(ex2mem_pipe_reg_.alu_out, ex2mem_pipe_reg_.st_data);
-      break;
+    switch (ex2mem_pipe_reg_.st_type) {
+      case StoreType::ST_W:
+        dram_ptr_->set_word(ex2mem_pipe_reg_.alu_out, ex2mem_pipe_reg_.st_data);
+        break;
+    }
   }
 
   // to wb
@@ -294,7 +322,8 @@ void MipsCpu::inst_wb() {
   if (wb_enable) {
     reg_ptr_->set(rf_wnum, rf_wdata);
     // trace log
-    trace_ << mem2wb_pipe_reg_.pc << " " << rf_wnum << " " << rf_wdata << std::endl;
+    trace_ << std::hex << mem2wb_pipe_reg_.pc << " " << std::dec << rf_wnum << " " << std::hex
+           << rf_wdata << std::endl;
   }
 
   // forwarding, to id

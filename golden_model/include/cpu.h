@@ -62,7 +62,9 @@ struct MEM2WBPipeReg {
 };
 
 struct IFInput {
-  PcSel pc_sel = PcSel::PC_0;
+  PcSel pc_sel     = PcSel::PC_0;
+  bool br_en       = false;
+  unsigned br_addr = 0;
   bool stall;
 };
 
@@ -128,6 +130,10 @@ class MipsCpu {
 
   IFInput if_stage_input_;
   IDInput id_stage_input_;
+
+ private:
+  bool br_delay_slot_;
+  bool br_delay_slot_pc_;
 };
 
 #endif
