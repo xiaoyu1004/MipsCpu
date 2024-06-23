@@ -6,25 +6,25 @@
 constexpr int REG_NUM = 32;
 
 class RegFile {
-   public:
-    RegFile() {}
+ public:
+  RegFile() {}
 
-    int get(int num) {
-        if (num < 0 || num >= REG_NUM) {
-            fatal_msg("reg num must gt 0 and lt 31");
-        }
-        return reg_[num];
+  int get(int num) {
+    if (num < 0 || num >= REG_NUM) {
+      fatal_msg("reg num must gt 0 and lt 31");
     }
+    return (num == 0 ? 0 : reg_[num]);
+  }
 
-    void set(int num, int val) {
-        if (num < 0 || num >= REG_NUM) {
-            fatal_msg("reg num must gt 0 and lt 31");
-        }
-        reg_[num] = val;
+  void set(int num, int val) {
+    if (num < 0 || num >= REG_NUM) {
+      fatal_msg("reg num must gt 0 and lt 31");
     }
+    reg_[num] = val;
+  }
 
-   private:
-    int reg_[32] = {};
+ private:
+  int reg_[32] = {};
 };
 
 #endif

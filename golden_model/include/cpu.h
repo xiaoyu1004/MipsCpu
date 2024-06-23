@@ -7,6 +7,7 @@
 #include "ctrl.h"
 
 #include <cstddef>
+#include <fstream>
 
 constexpr unsigned XLEN    = 32U;
 constexpr size_t IRAM_SIZE = 16384u;
@@ -15,16 +16,11 @@ constexpr size_t DRAM_SIZE = 32768u;
 class MipsCpu {
  public:
   MipsCpu(size_t iram_size = IRAM_SIZE, size_t dram_size = DRAM_SIZE);
-
-  ~MipsCpu() {
-    delete[] reg_ptr_;
-    delete[] iram_ptr_;
-    delete[] dram_ptr_;
-  }
+  ~MipsCpu();
 
  public:
-  void load_inst(int* iptr, size_t size);
-  void load_data(int8_t* dptr, size_t size);
+  void load_inst(uint8_t* iptr, size_t size);
+  void load_data(uint8_t* dptr, size_t size);
   int run();
 
  private:
@@ -38,6 +34,7 @@ class MipsCpu {
   RegFile* reg_ptr_;
   RAM* iram_ptr_;
   RAM* dram_ptr_;
+  std::ofstream trace_;
 
  private:
   size_t inst_size_;
@@ -46,12 +43,17 @@ class MipsCpu {
  private:
   CtrlSignals ctrlsigs_;
   unsigned inst_bit_;
+  unsigned next_pc_;
   unsigned pc_;
-  int rs1_data_;
-  int rs2_data_;
-  int alu_op1_data_;
-  int alu_op2_data_;
+  bool br_delay_slot_;
+  unsigned br_delay_addr_;
+  uint8_t rs_addr_;
+  uint8_t rt_addr_;
+  int op1_data_;
+  int op2_data_;
   int alu_out_;
+  int load_data_;
+  int store_data_;
   uint8_t rd_addr_;
   bool int_overflow_;
 };

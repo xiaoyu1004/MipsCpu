@@ -5,7 +5,7 @@ MIPS_LD 	= mipsel-linux-gnu-ld
 MIPS_OBJDUMP = mipsel-linux-gnu-objdump
 MIPS_OBJCOPY = mipsel-linux-gnu-objcopy
 
-MIPS_SFLAGS = -fno-common -fno-builtin-printf -c
+MIPS_SFLAGS = -fno-builtin -mabi=32 -mno-long-calls -mno-mips16 -march=mips32 -fno-reorder-blocks -fno-reorder-functions -EL -c
 MIPS_LDFLAGS = -T $(BASE_DIR)/insts/mips32.ld
 
 MIPS32_ASM_S 			= $(wildcard $(BASE_DIR)/insts/*.S)
