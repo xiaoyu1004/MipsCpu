@@ -78,7 +78,7 @@ sirv_gnrl_dfflr u_dsvld_vec_1_dff #(
 wire [`FS_TO_DS_BUS_WD-1:0] fs_to_ds_bus_r;
 
 sirv_gnrl_dfflr u_ds_bus_vec_32_dff #(
-  .DW(`XLEN)
+  .DW(`FS_TO_DS_BUS_WD)
 ) (
   .clk  (clk),
   .reset(reset),
