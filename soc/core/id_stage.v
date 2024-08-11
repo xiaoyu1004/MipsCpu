@@ -77,7 +77,7 @@ sirv_gnrl_dfflr u_dsvld_vec_1_dff #(
 // ds_pc && ds_inst
 wire [`FS_TO_DS_BUS_WD-1:0] fs_to_ds_bus_r;
 
-sirv_gnrl_dfflr u_ds_bus_vec_32_dff #(
+sirv_gnrl_dfflr u_ds_bus_vec_dff #(
   .DW(`FS_TO_DS_BUS_WD)
 ) (
   .clk  (clk),

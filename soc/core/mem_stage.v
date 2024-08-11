@@ -13,7 +13,7 @@ module mem_stage(
   output                        ms_to_ws_valid  ,
   output [`MS_TO_WS_BUS_WD-1:0] ms_to_ws_bus    ,
   // from data sram
-  input [31                 :0] data_sram_rdata
+  input [31                 :0] cpu_data_rdata
 );
 wire ms_valid;
 wire ms_ready_go  = 1'b1;
@@ -59,7 +59,7 @@ assign {ms_pc,
         ms_alu_result} = es_to_ms_bus_r;
 
 // to ws
-wire [31:0] rf_wdata = ms_load_op ? data_sram_rdata : ms_alu_result;
+wire [31:0] rf_wdata = ms_load_op ? cpu_data_rdata : ms_alu_result;
 
 assign ms_to_ws_bus = {ms_pc,
                       ms_rf_we,

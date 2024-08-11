@@ -7,16 +7,16 @@ module ex_stage(
   input                         ms_allowin      ,
   output                        es_allowin      ,
   // from ds
-  input                         ds_to_es_valid,
+  input                         ds_to_es_valid  ,
   input [`DS_TO_ES_BUS_WD-1:0]  ds_to_es_bus    ,
   // to ms
-  output                        es_to_ms_valid,
+  output                        es_to_ms_valid  ,
   output [`ES_TO_MS_BUS_WD-1:0] es_to_ms_bus    ,
-  // to mem
-  output                        data_sram_en    ,
-  output [3                 :0] data_sram_wen   ,
-  output [31                :0] data_sram_addr  ,
-  output [31                :0] data_sram_wdata 
+  // to data sram
+  output                        cpu_data_en     ,
+  output [3                 :0] cpu_data_wen    ,
+  output [31                :0] cpu_data_addr   ,
+  output [31                :0] cpu_data_wdata 
 );
 wire es_valid;
 wire es_ready_go  = 1'b1;
@@ -36,7 +36,7 @@ sirv_gnrl_dfflr u_esvld_vec_1_dff #(
 
 wire [`DS_TO_ES_BUS_WD-1:0]  ds_to_es_bus_r;
 
-sirv_gnrl_dfflr u_es_bus_vec_32_dff #(
+sirv_gnrl_dfflr u_es_bus_vec_dff #(
   .DW(`DS_TO_ES_BUS_WD)
 ) (
   .clk  (clk),
@@ -105,8 +105,8 @@ assign es_to_ms_bus   = {es_pc,
                          };
 
 // for data sram
-assign data_sram_en     = es_load_op;
-assign data_sram_wen    = {4{es_mem_we && es_valid}};
-assign data_sram_addr   = es_alu_result;
-assign data_sram_wdata  = es_rt_data;
+assign cpu_data_en     = es_load_op;
+assign cpu_data_wen    = {4{es_mem_we && es_valid}};
+assign cpu_data_addr   = es_alu_result;
+assign cpu_data_wdata  = es_rt_data;
 endmodule
