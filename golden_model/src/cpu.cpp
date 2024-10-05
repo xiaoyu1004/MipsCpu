@@ -45,15 +45,15 @@ void MipsCpu::load_data(uint8_t* dptr, size_t size) {
 int MipsCpu::run() {
   while (true) {
     inst_fetch();
-    if (pc_ >= (inst_size_)) {
-      std::cout << "cpu run finish" << std::endl;
-      break;
-    }
-
     inst_decode();
     inst_execute();
     inst_mem();
     inst_wb();
+
+    if (pc_ >= (inst_size_ - 20)) {
+      std::cout << "cpu run finish" << std::endl;
+      break;
+    }
   }
 
   return 0;
@@ -66,9 +66,7 @@ void MipsCpu::inst_fetch() {
 
   pc_ = next_pc_;
 
-  unsigned inst_bit_raw = static_cast<unsigned>(iram_ptr_->get_word(pc_));
-  inst_bit_             = ((inst_bit_raw >> 24) & 0xff) | ((inst_bit_raw >> 8) & 0xff00) |
-      ((inst_bit_raw << 8) & 0xff0000) | ((inst_bit_raw << 24) & 0xff000000);
+  inst_bit_ = static_cast<unsigned>(iram_ptr_->get_word(pc_));
 
   switch (ctrlsigs_.pc_sel) {
     case PcSel::PC_0:

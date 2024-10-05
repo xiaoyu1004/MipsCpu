@@ -9,7 +9,7 @@
 
 `define FS_TO_DS_BUS_WD (`XLEN + `INST_LEN)
 
-`define DS_TO_ES_BUS_WD 135
+`define DS_TO_ES_BUS_WD 136
 
 `define ES_TO_MS_BUS_WD 71
 

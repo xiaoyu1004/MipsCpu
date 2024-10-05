@@ -34,9 +34,9 @@ assign sel_sram = ~sel_conf;
 wire sel_sram_r;
 wire sel_conf_r;
 
-sirv_gnrl_dfflr u_sel_sram_vec_1_dff #(
+sirv_gnrl_dfflr #(
   .DW(1)
-) (
+) u_sel_sram_vec_1_dff (
   .clk  (clk),
   .reset(reset),
   .lden (1'b1),
@@ -44,9 +44,9 @@ sirv_gnrl_dfflr u_sel_sram_vec_1_dff #(
   .qout (sel_sram_r)
 );
 
-sirv_gnrl_dfflr u_sel_sram_vec_1_dff #(
+sirv_gnrl_dfflr #(
   .DW(1)
-) (
+) u_sel_conf_vec_1_dff (
   .clk  (clk),
   .reset(reset),
   .lden (1'b1),

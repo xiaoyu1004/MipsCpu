@@ -42,10 +42,12 @@ assign B    = (op_sub | op_slt | op_sltu) ? ~alu_src2 : alu_src2;
 assign cin  = (op_sub | op_slt | op_sltu) ? 1'b1 : 1'b0;
 
 // add | sub
-assign {cout, add_result} = A + B + cin;
+/* verilator lint_off WIDTH */
+assign {cout, add_result} = A + B + cin; 
+/* verilator lint_on WIDTH */
 
 // slt
-assign slt_result  = {31'b0, sub_result[31]};
+assign slt_result  = {31'b0, add_result[31]};
 
 // sltu
 assign sltu_result = {31'b0, ~cout};
@@ -58,13 +60,13 @@ wire [31:0] shift_mask;
 genvar i;
 generate
   for (i = 0; i < 32; i = i + 1) begin: gen_for_rev_src
-    assign op_src[i] = op_sll ? alu_src1[31-i] : alu_src1[i];
+    assign op_src[i] = op_sll ? alu_src2[31-i] : alu_src2[i];
   end
 endgenerate
 
-assign shift_result = op_src >> alu_src2[4:0];
+assign shift_result = op_src >> alu_src1[4:0];
 
-assign shift_mask = ~(32'hffffffff >> alu_src2[4:0]);
+assign shift_mask = ~(32'hffffffff >> alu_src1[4:0]);
 
 genvar j;
 generate
@@ -75,10 +77,10 @@ endgenerate
 
 assign srl_result = shift_result;
 
-assign sra_result = ({32{alu_src1[31]}} & shift_mask) | shift_result;
+assign sra_result = ({32{alu_src2[31]}} & shift_mask) | shift_result;
 
 // lui
-assign lui_result = {alu_src1[15:0], 16'b0};
+assign lui_result = {alu_src2[15:0], 16'b0};
 
 // and
 assign and_result = alu_src1 & alu_src2;
@@ -90,19 +92,19 @@ assign or_result  = alu_src1 | alu_src2;
 assign xor_result = alu_src1 ^ alu_src2;
 
 // nor
-assign nor_result = ~(alu_src1 ^ alu_src2);
+assign nor_result = ~(alu_src1 | alu_src2);
 
-assign alu_result = {
-  {{32{op_add | op_sub}}  & add_result}  |
-  {{32{op_slt}}           & slt_result}  |
-  {{32{op_sltu}},         & sltu_result} |
-  {{32{op_sll}},          & sll_result}  |
-  {{32{op_srl}},          & srl_result}  |
-  {{32{op_sra}},          & sra_result}  |
-  {{32{op_lui}},          & lui_result}  |
-  {{32{op_and}},          & and_result}  |
-  {{32{op_or}},           & or_result}   |
-  {{32{op_xor}},          & xor_result}  |
-  {{32{op_nor}},          & nor_result}
-};
+assign alu_result = 
+  ({32{op_add | op_sub}}  & add_result)  |
+  ({32{op_slt}}           & slt_result)  |
+  ({32{op_sltu}}          & sltu_result) |
+  ({32{op_sll}}           & sll_result)  |
+  ({32{op_srl}}           & srl_result)  |
+  ({32{op_sra}}           & sra_result)  |
+  ({32{op_lui}}           & lui_result)  |
+  ({32{op_and}}           & and_result)  |
+  ({32{op_or}}            & or_result)   |
+  ({32{op_xor}}           & xor_result)  |
+  ({32{op_nor}}           & nor_result);
+
 endmodule

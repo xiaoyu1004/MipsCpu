@@ -4,3 +4,4 @@ build/
 *.txt
 *dump
 *hex
+generated-src/*

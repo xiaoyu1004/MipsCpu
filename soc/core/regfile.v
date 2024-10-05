@@ -20,7 +20,7 @@ assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : regs[raddr1];
 assign rdata2 = (raddr2 == 5'b0) ? 32'b0 : regs[raddr2];
 
 // write
-always (posedge clk) begin
+always @(posedge clk) begin
   if (rf_we) begin
     regs[rf_waddr] <= rf_wdata;
   end

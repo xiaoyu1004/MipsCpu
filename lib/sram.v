@@ -5,19 +5,29 @@ module sram #(
   input                      reset      ,
   input                      sram_en    ,
   input  [3:0]               sram_wen   ,
-  input  [31-1:0]            sram_addr  ,
-  input  [31-1:0]            sram_wdata ,
-  output [31-1:0]            sram_rdata 
+  input  [13:0]              sram_addr  ,
+  input  [31:0]              sram_wdata ,
+  output [31:0]              sram_rdata 
 );
-reg [SRAM_SIZE-1:0] mem[31:0];
+reg [31:0] mem [SRAM_SIZE-1:0];
+
+wire [11:0] mem_addr = sram_addr[13:2];
 
 // read
-assign sram_rdata = sram_en ? mem[sram_addr] : 32'b0;
+reg [31:0] ram_rdata;
+
+always @(posedge clk) begin
+  if (sram_en) begin
+    ram_rdata <= mem[mem_addr];
+  end
+end
+
+assign sram_rdata = ram_rdata;
 
 // write
-always (posedge clk) begin
+always @(posedge clk) begin
   if (|sram_wen) begin
-    mem[sram_addr] <= sram_wdata;
+    mem[mem_addr] <= sram_wdata;
   end
 end
 endmodule

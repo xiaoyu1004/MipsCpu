@@ -30,11 +30,11 @@ wire [`INST_LEN-1:0]  fs_inst;
 wire [`XLEN-1:0] seq_pc;
 wire [`XLEN-1:0] next_pc;
 
-assign seq_pc = fs_pc + 3'h4;
+assign seq_pc = fs_pc + 32'h4;
 
-mux21 u_pc_mux21 #(
+mux21 #(
   .DW(`XLEN)
-) (
+) u_pc_mux21 (
   .sel(br_taken),
   .in0(seq_pc),
   .in1(br_target),
@@ -50,9 +50,9 @@ wire fs_ready_go  = 1'b1;
 wire fs_allowin   = fs_ready_go && ds_allowin || ~fs_valid;
 
 // fs_valid
-sirv_gnrl_dfflr u_fsvld_vec_1_dff #(
+sirv_gnrl_dfflr #(
   .DW(1)
-) (
+) u_fsvld_vec_1_dff (
   .clk  (clk),
   .reset(reset),
   .lden (fs_allowin),
@@ -61,12 +61,12 @@ sirv_gnrl_dfflr u_fsvld_vec_1_dff #(
 );
 
 // fs_pc
-sirv_gnrl_dfflrsv u_fs_pc_vec_32_dff #(
+sirv_gnrl_dfflrsv #(
   .DW(`XLEN)
-) (
+) u_fs_pc_vec_32_dff (
   .clk  (clk),
   .reset(reset),
-  .rsv  (32'hbfbffffc),
+  .rsv  (32'hfffffffc),
   .lden (fs_allowin && to_fs_valid),
   .dnxt (next_pc),
   .qout (fs_pc)

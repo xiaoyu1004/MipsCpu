@@ -1,6 +1,6 @@
 `include "cpu.vh"
 
-module soc_top(
+module Top(
   input                         clk               ,
   input                         reset             ,
   // gpio
@@ -8,7 +8,7 @@ module soc_top(
   // debug
   output [31                :0] debug_wb_pc       ,
   output [3                 :0] debug_wb_rf_we    ,
-  output [31                :0] debug_wb_rf_waddr ,
+  output [4                 :0] debug_wb_rf_waddr ,
   output [31                :0] debug_wb_rf_wdata 
 );
 // inst sram
@@ -64,12 +64,12 @@ cpu_pipeline u_pipe(
 
 // inst sram
 sram u_inst_sram(
-  .clk        (clk)             ,
-  .reset      (reset)           ,
-  .sram_en    (inst_sram_en)    ,
-  .sram_wen   (inst_sram_wen)   ,
-  .sram_addr  (inst_sram_addr)  ,
-  .sram_wdata (inst_sram_wdata) ,
+  .clk        (clk)                   ,
+  .reset      (reset)                 ,
+  .sram_en    (inst_sram_en)          ,
+  .sram_wen   (inst_sram_wen)         ,
+  .sram_addr  (inst_sram_addr[13:0])  ,
+  .sram_wdata (inst_sram_wdata)       ,
   .sram_rdata (inst_sram_rdata)
 );
 
@@ -98,12 +98,12 @@ bridge_1x2 u_bridge_1x2(
 
 // data sram
 sram u_data_sram(
-  .clk        (clk)             ,
-  .reset      (reset)           ,
-  .sram_en    (data_sram_en)    ,
-  .sram_wen   (data_sram_wen)   ,
-  .sram_addr  (data_sram_addr)  ,
-  .sram_wdata (data_sram_wdata) ,
+  .clk        (clk)                   ,
+  .reset      (reset)                 ,
+  .sram_en    (data_sram_en)          ,
+  .sram_wen   (data_sram_wen)         ,
+  .sram_addr  (data_sram_addr[13:0])  ,
+  .sram_wdata (data_sram_wdata)       ,
   .sram_rdata (data_sram_rdata)
 );
 

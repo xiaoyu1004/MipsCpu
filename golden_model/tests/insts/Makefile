@@ -10,9 +10,10 @@ MIPS_LDFLAGS = -T $(BASE_DIR)/insts/mips32.ld
 
 MIPS32_ASM_S 			= $(wildcard $(BASE_DIR)/insts/*.S)
 MIPS32_ASM_DUMPS 	= $(patsubst %.S, %.dump, $(MIPS32_ASM_S))
-MIPS32_ASM_HEXS 		= $(patsubst %.S, %.hex, $(MIPS32_ASM_S))
+MIPS32_ASM_INST 		= $(patsubst %.S, %.inst, $(MIPS32_ASM_S))
+MIPS32_ASM_DATA 		= $(patsubst %.S, %.data, $(MIPS32_ASM_S))
 
-all: $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_HEXS)
+all: $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_INST) $(MIPS32_ASM_DATA)
 
 %.o: %.S
 	$(MIPS_GCC) $(MIPS_SFLAGS) $< -o $*.o
@@ -23,13 +24,19 @@ all: $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_HEXS)
 %.dump: %.elf
 	$(MIPS_OBJDUMP) --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.data $< > $@
 
-%.bin: %.elf
-	$(MIPS_OBJCOPY) -O binary -j .text $< $*.bin 
+%.inst_bin: %.elf
+	$(MIPS_OBJCOPY) -O binary -j .text $< $@
 
-%.hex: %.bin
+%.inst: %.inst_bin
+	od -An -tx1 -w4 -v $< > $@
+
+%.data_bin: %.elf
+	$(MIPS_OBJCOPY) -O binary -j .data $< $@
+
+%.data: %.data_bin
 	od -An -tx1 -w4 -v $< > $@
 
 clean:
-	rm -rf $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_HEXS)
+	rm -rf $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_INST) $(MIPS32_ASM_DATA)
 
 .PHONY: clean all

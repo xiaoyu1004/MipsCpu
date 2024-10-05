@@ -1,6 +1,6 @@
 module decoder_6_64(
-  input [5:0]   in,
-  input [63:0]  out
+  input  [5:0]   in,
+  output [63:0]  out
 );
 genvar i;
 generate

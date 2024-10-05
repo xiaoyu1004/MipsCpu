@@ -18,12 +18,14 @@ module cpu_pipeline(
   // debug
   output [31                :0] debug_wb_pc       ,
   output [3                 :0] debug_wb_rf_we    ,
-  output [31                :0] debug_wb_rf_waddr ,
+  output [4                 :0] debug_wb_rf_waddr ,
   output [31                :0] debug_wb_rf_wdata 
 );
 // if
 wire                        ds_allowin;
+/* verilator lint_off UNOPTFLAT */
 wire [`BR_BUS_WD-1:0]       br_bus;
+/* verilator lint_on UNOPTFLAT */
 wire                        fs_to_ds_valid;
 wire [`FS_TO_DS_BUS_WD-1:0] fs_to_ds_bus;
 
@@ -40,12 +42,26 @@ wire [31                :0] rt_data;
 wire                        ms_allowin;
 wire                        es_to_ms_valid;
 wire [`ES_TO_MS_BUS_WD-1:0] es_to_ms_bus;
+wire                        es_valid;
+wire [4                 :0] es_rf_waddr;
 
 // mem
 wire                        ws_allowin;
 wire                        ms_to_ws_valid;
 wire [`MS_TO_WS_BUS_WD-1:0] ms_to_ws_bus;
 wire [`WS_TO_RF_BUS_WD-1:0] ws_to_rf_bus;
+wire                        ms_valid;
+wire [4                 :0] ms_rf_waddr;
+
+// wb
+wire                         ws_valid;
+wire [4                 :0]  ws_rf_waddr;
+
+wire                         ws_rf_we;
+wire [4                 :0]  ws_rf_addr;
+wire [31                :0]  ws_rf_wdata;
+
+assign {ws_rf_we, ws_rf_addr, ws_rf_wdata} = ws_to_rf_bus;
 
 // if
 if_stage u_if(
@@ -86,7 +102,16 @@ id_stage u_id(
   .rt_addr        (rt_addr)         ,
   // from rf
   .rs_data        (rs_data)         ,
-  .rt_data        (rt_data)
+  .rt_data        (rt_data)         ,
+  // from es
+  .es_valid       (es_valid)        ,
+  .es_rf_waddr    (es_rf_waddr)     ,
+  // from ms
+  .ms_valid       (ms_valid)        ,
+  .ms_rf_waddr    (ms_rf_waddr)     ,
+  // from ws
+  .ws_valid       (ws_valid)        ,
+  .ws_rf_waddr    (ws_rf_waddr)
 );
 
 // ex
@@ -106,7 +131,10 @@ ex_stage u_ex(
   .cpu_data_en      (cpu_data_en)       ,
   .cpu_data_wen     (cpu_data_wen)      ,
   .cpu_data_addr    (cpu_data_addr)     ,
-  .cpu_data_wdata   (cpu_data_wdata)
+  .cpu_data_wdata   (cpu_data_wdata)    ,
+  // to ds
+  .es_valid         (es_valid)          ,
+  .es_rf_waddr      (es_rf_waddr)
 );
 
 // mem
@@ -123,7 +151,10 @@ mem_stage u_mem(
   .ms_to_ws_valid   (ms_to_ws_valid)  ,
   .ms_to_ws_bus     (ms_to_ws_bus)    ,
   // from data sram
-  .cpu_data_rdata   (cpu_data_rdata)
+  .cpu_data_rdata   (cpu_data_rdata)  ,
+  // to ds
+  .ms_valid         (ms_valid)        ,
+  .ms_rf_waddr      (ms_rf_waddr)
 );
 
 // wb
@@ -141,10 +172,11 @@ wb_stage u_wb(
   .debug_wb_pc        (debug_wb_pc)       ,
   .debug_wb_rf_we     (debug_wb_rf_we)    ,
   .debug_wb_rf_waddr  (debug_wb_rf_waddr) ,
-  .debug_wb_rf_wdata  (debug_wb_rf_wdata)
+  .debug_wb_rf_wdata  (debug_wb_rf_wdata) ,
+  // to ds
+  .ws_valid           (ws_valid)          ,
+  .ws_rf_waddr        (ws_rf_waddr)
 );
-
-assign {ws_rf_we, ws_rf_addr, ws_rf_wdata} = ws_to_rf_bus;
 
 regfile u_regfile(
   .clk      (clk)         ,

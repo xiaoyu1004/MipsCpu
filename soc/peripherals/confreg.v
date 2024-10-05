@@ -19,11 +19,11 @@ wire conf_we = conf_en & (|conf_wen);
 
 // led conf reg
 wire [31:0] led_data;
-wire write_led = conf_we && (conf_addr == `LED_ADDR);
+wire write_led = conf_we && (conf_addr[15:0] == `LED_ADDR);
 
-sirv_gnrl_dfflr u_led_vec_32_dff #(
+sirv_gnrl_dfflr #(
   .DW(`XLEN)
-) (
+) u_led_vec_32_dff (
   .clk  (clk),
   .reset(reset),
   .lden (write_led),

@@ -6,39 +6,38 @@
 #include <algorithm>
 #include <string>
 
-static void InitInstRam(std::string& inst_fname, std::vector<int>& inst_vec) {
-  std::ifstream fs(inst_fname);
+static void ReadBin(std::string& fname, std::vector<int>& vec) {
+  std::ifstream fs(fname);
   if (!fs.is_open()) {
-    fatal_msg("test asm file open fail");
+    fatal_msg("test asm file inst open fail");
   }
 
-  std::cout << "load inst success: " << inst_fname << std::endl;
+  std::cout << "load inst success: " << fname << std::endl;
 
   std::string line;
   while (std::getline(fs, line)) {
     line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
     unsigned hex;
     sscanf(line.c_str(), "%x", &hex);
-    inst_vec.push_back(hex);
+    unsigned reverse_hex = ((hex >> 24) & 0xff) | ((hex >> 8) & 0xff00) | ((hex << 8) & 0xff0000) |
+        ((hex << 24) & 0xff000000);
+    vec.push_back(reverse_hex);
   }
 
   fs.close();
 }
 
-static void InitDataRam(std::vector<int>& data_vec) {
-  size_t size = data_vec.size();
-  for (size_t i = 0; i < size; ++i) {
-    if (i < 8) {
-      data_vec[i] = 1 - 2 * i;
-    } else {
-      data_vec[i] = 0;
-    }
-  }
+static void InitInstRam(std::string& inst_fname, std::vector<int>& inst_vec) {
+  ReadBin(inst_fname, inst_vec);
+}
+
+static void InitDataRam(std::string& data_fname, std::vector<int>& data_vec) {
+  ReadBin(data_fname, data_vec);
 }
 
 int main(int argc, const char* argv[]) {
-  if (argc != 2) {
-    fatal_msg("argc must be 2");
+  if (argc != 3) {
+    fatal_msg("argc must be 3");
   }
 
   // init inst ram
@@ -47,8 +46,9 @@ int main(int argc, const char* argv[]) {
   InitInstRam(inst_fname, inst_vec);
 
   // init data ram
-  std::vector<int> data_vec(1024);
-  InitDataRam(data_vec);
+  std::vector<int> data_vec;
+  std::string data_fname(argv[2]);
+  InitDataRam(data_fname, data_vec);
 
   // run
   MipsCpu* mipscpu = new MipsCpu();

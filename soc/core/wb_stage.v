@@ -13,18 +13,21 @@ module wb_stage(
   // debug
   output [31                :0] debug_wb_pc       ,
   output [3                 :0] debug_wb_rf_we    ,
-  output [31                :0] debug_wb_rf_waddr ,
+  output [4                 :0] debug_wb_rf_waddr ,
   output [31                :0] debug_wb_rf_wdata ,
+  // to ds
+  output                        ws_valid          ,
+  output [4                 :0] ws_rf_waddr
 );
-wire ws_valid;
+// wire ws_valid;
 wire ws_ready_go = 1'b1;
 
 assign ws_allowin = ws_ready_go || !ws_valid;
 
 // ws_valid
-sirv_gnrl_dfflr u_wsvld_vec_1_dff #(
+sirv_gnrl_dfflr #(
   .DW(1)
-) (
+) u_wsvld_vec_1_dff (
   .clk  (clk),
   .reset(reset),
   .lden (ws_allowin),
@@ -35,9 +38,9 @@ sirv_gnrl_dfflr u_wsvld_vec_1_dff #(
 // ws bus
 wire [`MS_TO_WS_BUS_WD-1:0]  ms_to_ws_bus_r;
 
-sirv_gnrl_dfflr u_es_bus_vec_dff #(
+sirv_gnrl_dfflr #(
   .DW(`MS_TO_WS_BUS_WD)
-) (
+) u_es_bus_vec_dff (
   .clk  (clk),
   .reset(reset),
   .lden (ws_allowin && ms_to_ws_valid),
@@ -47,20 +50,20 @@ sirv_gnrl_dfflr u_es_bus_vec_dff #(
 
 wire [31:0] ws_pc;
 wire        ws_rf_we;
-wire [4:0]  ws_rf_addr;
+// wire [4:0]  ws_rf_waddr;
 wire [31:0] ws_rf_wdata;
 
 assign {ws_pc,
         ws_rf_we,
-        ws_rf_addr,
+        ws_rf_waddr,
         ws_rf_wdata} = ms_to_ws_bus_r;
 
 // to regfile
-assign ws_to_rf_bus = {ws_rf_we, ws_rf_addr, ws_rf_wdata};
+assign ws_to_rf_bus = {ws_rf_we && ws_valid, ws_rf_waddr, ws_rf_wdata};
 
 // debug
 assign debug_wb_pc        = ws_pc;
-assign debug_wb_rf_we     = ws_rf_we;
-assign debug_wb_rf_waddr  = ws_rf_addr;
+assign debug_wb_rf_we     = {4{ws_rf_we && ws_valid}};
+assign debug_wb_rf_waddr  = ws_rf_waddr;
 assign debug_wb_rf_wdata  = ws_rf_wdata;
 endmodule
