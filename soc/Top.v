@@ -76,7 +76,7 @@ sram u_inst_sram(
   .reset      (reset)                 ,
   .sram_en    (inst_sram_en)          ,
   .sram_wen   (inst_sram_wen)         ,
-  .sram_addr  (inst_sram_addr[13:0])  ,
+  .sram_addr  (inst_sram_addr[13:2])  ,
   .sram_wdata (inst_sram_wdata)       ,
   .sram_rdata (inst_sram_rdata)
 );
@@ -110,7 +110,7 @@ sram u_data_sram(
   .reset      (reset)                 ,
   .sram_en    (data_sram_en)          ,
   .sram_wen   (data_sram_wen)         ,
-  .sram_addr  (data_sram_addr[13:0])  ,
+  .sram_addr  (data_sram_addr[13:2])  ,
   .sram_wdata (data_sram_wdata)       ,
   .sram_rdata (data_sram_rdata)
 );
