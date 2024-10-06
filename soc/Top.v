@@ -3,13 +3,18 @@
 module Top(
   input                         clk               ,
   input                         reset             ,
-  // gpio
-  output [15                :0] led               ,
+  // led
+  output [31                :0] led               ,
+  // seg
+  output [31                :0] seg               
   // debug
+`ifdef DEBUG
+  ,
   output [31                :0] debug_wb_pc       ,
   output [3                 :0] debug_wb_rf_we    ,
   output [4                 :0] debug_wb_rf_waddr ,
   output [31                :0] debug_wb_rf_wdata 
+`endif
 );
 // inst sram
 wire                       inst_sram_en    ;
@@ -54,12 +59,15 @@ cpu_pipeline u_pipe(
   .cpu_data_wen       (cpu_data_wen)      ,
   .cpu_data_addr      (cpu_data_addr)     ,
   .cpu_data_wdata     (cpu_data_wdata)    ,
-  .cpu_data_rdata     (cpu_data_rdata)    ,
+  .cpu_data_rdata     (cpu_data_rdata)    
   // debug
+`ifdef DEBUG
+  ,
   .debug_wb_pc        (debug_wb_pc)       ,
   .debug_wb_rf_we     (debug_wb_rf_we)    ,
   .debug_wb_rf_waddr  (debug_wb_rf_waddr) ,
   .debug_wb_rf_wdata  (debug_wb_rf_wdata)
+`endif
 );
 
 // inst sram
@@ -117,6 +125,7 @@ confreg u_confreg(
   .conf_addr  (conf_addr) ,
   .conf_wdata (conf_wdata),
   .conf_rdata (conf_rdata),
-  .led        (led)
+  .led        (led)       ,
+  .seg        (seg)       
 );
 endmodule

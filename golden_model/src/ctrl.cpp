@@ -35,42 +35,42 @@ std::map<InstType, CtrlSignals> CtrlsigsMap = {
 CtrlSignals get_default_ctrl_sigs() { return CtrlsigsMap[InstType::DEFAULT]; }
 
 CtrlSignals get_ctrl_sigs(unsigned inst_bit) {
-  auto inst_it = std::find_if(InstsMap.begin(), InstsMap.end(), [&](auto& m) {
-    if (m.second.size() != XLEN) {
-      fatal_msg("invalid inst bit str");
+    auto inst_it = std::find_if(InstsMap.begin(), InstsMap.end(), [&](auto& m) {
+        if (m.second.size() != XLEN) {
+            fatal_msg("invalid inst bit str");
+        }
+        std::bitset<XLEN> inst_bit_{inst_bit};
+        bool flag = true;
+        for (size_t i = 0; i < XLEN; ++i) {
+            if (m.second[i] == '?') {
+                continue;
+            }
+            flag &= !(static_cast<int>(m.second[i] - '0') ^ inst_bit_[XLEN - 1 - i]);
+        }
+        return flag;
+    });
+    if (inst_it == InstsMap.end()) {
+        fatal_msg("invalid inst");
     }
-    std::bitset<XLEN> inst_bit_{inst_bit};
-    bool flag = true;
-    for (size_t i = 0; i < XLEN; ++i) {
-      if (m.second[i] == '?') {
-        continue;
-      }
-      flag &= !(static_cast<int>(m.second[i] - '0') ^ inst_bit_[XLEN - 1 - i]);
+    auto ctrl_it = std::find_if(CtrlsigsMap.begin(), CtrlsigsMap.end(),
+                                [&](auto& m) { return m.first == inst_it->first; });
+    if (ctrl_it == std::end(CtrlsigsMap)) {
+        fatal_msg("invalid inst");
     }
-    return flag;
-  });
-  if (inst_it == InstsMap.end()) {
-    fatal_msg("invalid inst");
-  }
-  auto ctrl_it = std::find_if(CtrlsigsMap.begin(), CtrlsigsMap.end(),
-                              [&](auto& m) { return m.first == inst_it->first; });
-  if (ctrl_it == std::end(CtrlsigsMap)) {
-    fatal_msg("invalid inst");
-  }
-  ctrl_it->second.inst_type = ctrl_it->first;
-  return ctrl_it->second;
+    ctrl_it->second.inst_type = ctrl_it->first;
+    return ctrl_it->second;
 }
 
 bool CondBranchTrue(BrType br_type, int op1_data, int op2_data) {
-  if (br_type == BrType::BR_EQ) {
-    return op1_data == op2_data;
-  }
+    if (br_type == BrType::BR_EQ) {
+        return op1_data == op2_data;
+    }
 
-  if (br_type == BrType::BR_NE) {
-    return op1_data != op2_data;
-  }
+    if (br_type == BrType::BR_NE) {
+        return op1_data != op2_data;
+    }
 
-  return false;
+    return false;
 }
 
 bool DirectJump(BrType br_type) { return br_type == BrType::BR_DIRECT_JUMP; }

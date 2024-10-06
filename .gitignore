@@ -4,4 +4,9 @@ build/
 *.txt
 *dump
 *hex
+*.vcd
+*.trace
+*.verify_trace
+*.inst
+*.data
 generated-src/*

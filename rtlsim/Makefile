@@ -1,9 +1,9 @@
 base_dir   = $(abspath ..)
 gen_dir    = $(base_dir)/generated-src
-sim_dir    = $(base_dir)/sim
+sim_dir    = $(base_dir)/rtlsim
 src_dir    = $(base_dir)/soc
-lib_dir		 = $(base_dir)/lib
-threads   ?= 1
+lib_dir		 = $(sim_dir)/lib
+threads   ?= 2
 
 CXXFLAGS += -std=c++14 -Wall -Wno-unused-variable
 

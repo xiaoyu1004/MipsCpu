@@ -5,7 +5,8 @@
     "editor.fontSize": 15,
     "clang-format.executable": "/usr/bin/clang-format",
     "editor.formatOnSave": true,
-    "editor.tabSize": 2,
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
     "editor.indentSize": "tabSize",
     "files.associations": {
         "*.tcc": "cpp",

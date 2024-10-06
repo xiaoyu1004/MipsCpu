@@ -1,36 +1,3 @@
-//
-// ===========================================================================
-//
-// Description:
-//  Verilog module sirv_gnrl DFF with Load-enable and Reset
-//  Default reset value is 1
-//
-// ===========================================================================
-module sirv_gnrl_dfflrs # (
-  parameter DW = 32
-) (
-
-  input               lden, 
-  input      [DW-1:0] dnxt,
-  output     [DW-1:0] qout,
-
-  input               clk,
-  input               reset
-);
-
-reg [DW-1:0] qout_r;
-
-always @(posedge clk or negedge reset)
-begin : DFFLRS_PROC
-  if (reset)
-    qout_r <= {DW{1'b1}};
-  else if (lden == 1'b1)
-    qout_r <= #1 dnxt;
-end
-
-assign qout = qout_r;
-    
-endmodule
 
 // ===========================================================================
 //
@@ -55,7 +22,7 @@ reg [DW-1:0] qout_r;
 
 always @(posedge clk or negedge reset)
 begin : DFFLR_PROC
-  if (reset)
+  if (reset == 1'b0)
     qout_r <= {DW{1'b0}};
   else if (lden == 1'b1)
     qout_r <= #1 dnxt;
@@ -88,7 +55,7 @@ reg [DW-1:0] qout_r;
 
 always @(posedge clk or negedge reset)
 begin : DFFLR_PROC
-  if (reset)
+  if (reset == 1'b0)
     qout_r <= rsv;
   else if (lden == 1'b1)
     qout_r <= #1 dnxt;
@@ -131,38 +98,6 @@ endmodule
 //
 // Description:
 //  Verilog module sirv_gnrl DFF with Reset, no load-enable
-//  Default reset value is 1
-//
-// ===========================================================================
-module sirv_gnrl_dffrs # (
-  parameter DW = 32
-) (
-
-  input      [DW-1:0] dnxt,
-  output     [DW-1:0] qout,
-
-  input               clk,
-  input               reset
-);
-
-reg [DW-1:0] qout_r;
-
-always @(posedge clk or negedge reset)
-begin : DFFRS_PROC
-  if (reset)
-    qout_r <= {DW{1'b1}};
-  else                  
-    qout_r <= #1 dnxt;
-end
-
-assign qout = qout_r;
-
-endmodule
-
-// ===========================================================================
-//
-// Description:
-//  Verilog module sirv_gnrl DFF with Reset, no load-enable
 //  Default reset value is 0
 //
 // ===========================================================================
@@ -181,7 +116,7 @@ reg [DW-1:0] qout_r;
 
 always @(posedge clk or negedge reset)
 begin : DFFR_PROC
-  if (reset)
+  if (reset == 1'b0)
     qout_r <= {DW{1'b0}};
   else                  
     qout_r <= #1 dnxt;

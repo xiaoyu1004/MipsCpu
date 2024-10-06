@@ -11,10 +11,12 @@ module wb_stage(
   // to regfile
   output [`WS_TO_RF_BUS_WD-1:0] ws_to_rf_bus      ,
   // debug
+`ifdef DEBUG
   output [31                :0] debug_wb_pc       ,
   output [3                 :0] debug_wb_rf_we    ,
   output [4                 :0] debug_wb_rf_waddr ,
   output [31                :0] debug_wb_rf_wdata ,
+`endif
   // to ds
   output                        ws_valid          ,
   output [4                 :0] ws_rf_waddr
@@ -62,8 +64,10 @@ assign {ws_pc,
 assign ws_to_rf_bus = {ws_rf_we && ws_valid, ws_rf_waddr, ws_rf_wdata};
 
 // debug
+`ifdef DEBUG
 assign debug_wb_pc        = ws_pc;
 assign debug_wb_rf_we     = {4{ws_rf_we && ws_valid}};
 assign debug_wb_rf_waddr  = ws_rf_waddr;
 assign debug_wb_rf_wdata  = ws_rf_wdata;
+`endif
 endmodule

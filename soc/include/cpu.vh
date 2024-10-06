@@ -17,4 +17,6 @@
 
 `define WS_TO_RF_BUS_WD 38
 
+`define DEBUG
+
 `endif

@@ -1,7 +1,7 @@
 `include "cpu.vh"
 
-`define CONF_ADDR_BASE 32'h1faf_0000
-`define CONF_ADDR_MASK 32'h1fff_0000
+`define CONF_ADDR_BASE 32'hffff_0000
+`define CONF_ADDR_MASK 32'hffff_0000
 
 module bridge_1x2(
   input                        clk             ,

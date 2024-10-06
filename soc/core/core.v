@@ -14,12 +14,15 @@ module cpu_pipeline(
   output [3                 :0] cpu_data_wen      ,
   output [31                :0] cpu_data_addr     ,
   output [31                :0] cpu_data_wdata    ,
-  input  [31                :0] cpu_data_rdata    ,
+  input  [31                :0] cpu_data_rdata    
   // debug
+`ifdef DEBUG
+  ,
   output [31                :0] debug_wb_pc       ,
   output [3                 :0] debug_wb_rf_we    ,
   output [4                 :0] debug_wb_rf_waddr ,
   output [31                :0] debug_wb_rf_wdata 
+`endif
 );
 // if
 wire                        ds_allowin;
@@ -169,10 +172,12 @@ wb_stage u_wb(
   // to regfile
   .ws_to_rf_bus       (ws_to_rf_bus)      ,
   // debug
+`ifdef DEBUG
   .debug_wb_pc        (debug_wb_pc)       ,
   .debug_wb_rf_we     (debug_wb_rf_we)    ,
   .debug_wb_rf_waddr  (debug_wb_rf_waddr) ,
   .debug_wb_rf_wdata  (debug_wb_rf_wdata) ,
+`endif
   // to ds
   .ws_valid           (ws_valid)          ,
   .ws_rf_waddr        (ws_rf_waddr)

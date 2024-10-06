@@ -41,7 +41,7 @@ mux21 #(
   .out(next_pc)
 );
 
-wire to_fs_valid  = ~reset;
+wire to_fs_valid  = reset;
 
 // if stage
 wire fs_valid;

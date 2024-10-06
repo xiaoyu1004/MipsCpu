@@ -34,5 +34,5 @@ func:
   xor $t5, $t0, $t1
 
 end:
-  xor $zero, $zero, $zero
-  beq $zero, $zero, end
+  nop
+  nop
