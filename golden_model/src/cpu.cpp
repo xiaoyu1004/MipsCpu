@@ -4,26 +4,30 @@
 #include "confreg.h"
 
 #include <cstring>
+#include <algorithm>
 
 extern std::map<InstType, CtrlSignals> CtrlsigsMap;
 
-MipsCpu::MipsCpu(std::string d, size_t iram_size, size_t dram_size) : pc_(START_PC) {
+MipsCpu::MipsCpu(std::string d, size_t iram_size, size_t dram_size)
+    : pc_(START_PC), next_pc_(START_PC), br_delay_slot_(false) {
     iram_ptr_ = new RAM(iram_size);
     dram_ptr_ = new RAM(dram_size);
+    reg_ptr_  = new RegFile;
     conf_ptr_ = new Confreg;
 
     ctrlsigs_ = get_default_ctrl_sigs();
 
     std::string trace_fname = d + ".trace";
-    trace_.open(trace_fname, std::ios_base::out);
+    trace_                  = std::fstream(trace_fname, std::ios::trunc | std::ios::out);
 }
 
 MipsCpu::~MipsCpu() {
-    trace_.close();
-
     delete iram_ptr_;
     delete dram_ptr_;
     delete conf_ptr_;
+    delete reg_ptr_;
+
+    trace_.close();
 }
 
 void MipsCpu::load_inst(uint8_t* iptr, size_t size) {
@@ -37,7 +41,7 @@ void MipsCpu::load_inst(uint8_t* iptr, size_t size) {
 }
 
 void MipsCpu::load_data(uint8_t* dptr, size_t size) {
-    if (!dptr) {
+    if (!dptr && size > 0) {
         fatal_msg("invalid data ptr");
     }
     data_size_ = size;
@@ -55,7 +59,7 @@ int MipsCpu::run() {
         inst_wb();
 
         if (pc_ >= (inst_size_ - 4)) {
-            std::cout << "cpu run finish" << std::endl;
+            // std::cout << "cpu run finish" << std::endl;
             break;
         }
     }

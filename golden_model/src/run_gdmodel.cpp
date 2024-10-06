@@ -7,12 +7,10 @@
 #include <string>
 
 static void ReadBin(std::string& fname, std::vector<int>& vec) {
-    std::ifstream fs(fname);
+    std::fstream fs(fname);
     if (!fs.is_open()) {
         fatal_msg("test asm file inst open fail");
     }
-
-    std::cout << "load inst success: " << fname << std::endl;
 
     std::string line;
     while (std::getline(fs, line)) {

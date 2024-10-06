@@ -156,7 +156,7 @@ wire inst_xor   = opcode_d[0] && func_d[38];
 wire inst_nor   = opcode_d[0] && func_d[39];
 
 // alu_op
-assign alu_op[ 0] = inst_addu | inst_addiu | inst_lw | inst_sw;
+assign alu_op[ 0] = inst_addu | inst_addiu | inst_lw | inst_sw | inst_jal;
 assign alu_op[ 1] = inst_subu;
 assign alu_op[ 2] = inst_slt;
 assign alu_op[ 3] = inst_sltu;

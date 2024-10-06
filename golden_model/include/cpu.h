@@ -12,7 +12,7 @@
 
 constexpr unsigned XLEN    = 32U;
 constexpr size_t IRAM_SIZE = 16384u;
-constexpr size_t DRAM_SIZE = 32768u;
+constexpr size_t DRAM_SIZE = 16384u;
 
 class MipsCpu {
    public:
@@ -36,7 +36,7 @@ class MipsCpu {
     RAM* iram_ptr_;
     RAM* dram_ptr_;
     Confreg* conf_ptr_;
-    std::ofstream trace_;
+    std::fstream trace_;
 
    private:
     size_t inst_size_;
