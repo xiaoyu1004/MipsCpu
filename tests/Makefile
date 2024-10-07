@@ -11,16 +11,25 @@ MIPS_LDFLAGS = -T $(BASE_DIR)/link32.ld
 
 TEST_DIRS 			    := $(shell find $(BASE_DIR) -maxdepth 1 -type d)
 MIPS32_ASM_S 			= $(foreach d, $(TEST_DIRS), $(wildcard $d/*.S))
+
 MIPS32_ASM_DUMPS 		= $(foreach f, $(MIPS32_ASM_S), $(patsubst %.S, %.dump, $f))
+
 MIPS32_ASM_INST 		= $(foreach f, $(MIPS32_ASM_S), $(patsubst %.S, %.inst, $f))
 MIPS32_ASM_DATA 		= $(foreach f, $(MIPS32_ASM_S), $(patsubst %.S, %.data, $f))
 
+MIPS32_ASM_INST_BIN 	= $(foreach f, $(MIPS32_ASM_S), $(patsubst %.S, %.inst_bin, $f))
+MIPS32_ASM_DATA_BIN 	= $(foreach f, $(MIPS32_ASM_S), $(patsubst %.S, %.data_bin, $f))
+
+MIPS32_ASM_INST_COE 	= $(foreach f, $(MIPS32_ASM_S), $(patsubst %.S, %.coe, $f))
+
 GOLDEN_TRACE   			= $(foreach f, $(MIPS32_ASM_S), $(patsubst %.S, %.trace, $f))
 VERIFY_TRACE   			= $(foreach f, $(MIPS32_ASM_S), $(patsubst %.S, %.verify_trace, $f))
+
 RUN_GOLDEN				= $(BASE_DIR)/../build/run_gdmodel
 RUN_RTLSIM_VERIFY	    = $(BASE_DIR)/../generated-src/VTop
+RUN_BIN2COE				= $(BASE_DIR)/../build/bin2coe
 
-all: $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_INST) $(MIPS32_ASM_DATA)
+all: $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_INST) $(MIPS32_ASM_DATA) $(MIPS32_ASM_INST_BIN) $(MIPS32_ASM_DATA_BIN) $(MIPS32_ASM_INST_COE)
 
 test: $(GOLDEN_TRACE) $(VERIFY_TRACE)
 
@@ -39,6 +48,9 @@ test: $(GOLDEN_TRACE) $(VERIFY_TRACE)
 %.inst: %.inst_bin
 	od -An -tx1 -w4 -v $< > $@
 
+%.coe: %.inst_bin
+	$(RUN_BIN2COE) $< $@
+
 %.data_bin: %.elf
 	$(MIPS_OBJCOPY) -O binary -j .data $< $@
 
@@ -52,6 +64,6 @@ test: $(GOLDEN_TRACE) $(VERIFY_TRACE)
 	$(RUN_RTLSIM_VERIFY) $^ > $@
 
 clean:
-	rm -rf $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_INST) $(MIPS32_ASM_DATA) $(GOLDEN_TRACE) $(VERIFY_TRACE)
+	rm -rf $(MIPS32_ASM_DUMPS) $(MIPS32_ASM_INST) $(MIPS32_ASM_DATA) $(MIPS32_ASM_INST_BIN) $(MIPS32_ASM_DATA_BIN) $(MIPS32_ASM_INST_COE) $(GOLDEN_TRACE) $(VERIFY_TRACE)
 
 .PHONY: clean all

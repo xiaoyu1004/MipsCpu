@@ -5,8 +5,8 @@ module Top(
   input                         reset             ,
   // led
   output [31                :0] led               ,
-  // seg
-  output [31                :0] seg               
+  // smg
+  output [31                :0] smg               
   // debug
 `ifdef DEBUG
   ,
@@ -126,6 +126,6 @@ confreg u_confreg(
   .conf_wdata (conf_wdata),
   .conf_rdata (conf_rdata),
   .led        (led)       ,
-  .seg        (seg)       
+  .smg        (smg)       
 );
 endmodule

@@ -9,4 +9,7 @@ build/
 *.verify_trace
 *.inst
 *.data
+*.inst_bin
+*.data_bin
+*.coe
 generated-src/*

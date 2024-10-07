@@ -33,7 +33,7 @@ TOP.Top.conf_rdata[31:0]
 TOP.Top.conf_wdata[31:0]
 TOP.Top.conf_wen[3:0]
 TOP.Top.led[31:0]
-TOP.Top.seg[31:0]
+TOP.Top.smg[31:0]
 @1000200
 -top
 @800200
@@ -219,7 +219,7 @@ TOP.Top.u_confreg.conf_wdata[31:0]
 TOP.Top.u_confreg.conf_we
 @22
 TOP.Top.u_confreg.led[31:0]
-TOP.Top.u_confreg.seg[31:0]
+TOP.Top.u_confreg.smg[31:0]
 @28
 TOP.Top.u_confreg.write_led
 TOP.Top.u_confreg.write_seg
