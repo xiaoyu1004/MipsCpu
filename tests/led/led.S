@@ -80,7 +80,7 @@ locate:
     sw t0, 0(a0)
     NOP4
 
-    b end
+    b locate
     NOP
 
 wait_1s:                                                                              
