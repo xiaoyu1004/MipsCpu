@@ -21,7 +21,7 @@ module mem_stage(
 // wire ms_valid;
 wire ms_ready_go  = 1'b1;
 
-wire ms_allowin       = (ws_allowin & ms_ready_go) || ~ms_valid;
+assign ms_allowin       = (ws_allowin & ms_ready_go) || ~ms_valid;
 assign ms_to_ws_valid = ms_valid && ms_ready_go;
 
 // fs_valid

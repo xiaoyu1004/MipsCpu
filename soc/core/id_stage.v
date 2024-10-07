@@ -60,23 +60,6 @@ wire rt_hazard = ((es_valid && rt_addr == es_rf_waddr) ||
 
 assign ds_ready_go = !rs_hazard && !rt_hazard;
 
-// to es
-assign ds_to_es_valid = ds_valid && ds_ready_go;
-assign ds_to_es_bus   = {alu_op,
-                        src1_is_sa,
-                        src1_is_pc,
-                        src2_is_imm,
-                        src2_is_8,
-                        load_op,
-                        mem_we,
-                        rf_we,
-                        imm,
-                        rf_waddr,
-                        rs_data,
-                        rt_data,
-                        ds_pc
-                        };
-
 assign ds_allowin = (ds_ready_go && es_allowin) || ~ds_valid;
 
 // ds_valid
@@ -184,6 +167,22 @@ wire dst_is_r31 = inst_jal;
 wire dst_is_rt  = inst_addiu | inst_lw | inst_lui;
 
 assign rf_waddr = dst_is_r31 ? 5'd31 : (dst_is_rt ? rt_addr : rd_addr);
+
+// to es
+assign ds_to_es_valid = ds_valid && ds_ready_go;
+assign ds_to_es_bus   = {alu_op,
+                        src1_is_sa,
+                        src1_is_pc,
+                        src2_is_imm,
+                        src2_is_8,
+                        load_op,
+                        mem_we,
+                        rf_we,
+                        imm,
+                        rf_waddr,
+                        rs_data,
+                        rt_data,
+                        ds_pc};
 
 // for branch
 wire        rs_eq_rt        = rs_data == rt_data;

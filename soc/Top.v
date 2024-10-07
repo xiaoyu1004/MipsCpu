@@ -72,13 +72,12 @@ cpu_pipeline u_pipe(
 
 // inst sram
 sram u_inst_sram(
-  .clk        (clk)                   ,
-  .reset      (reset)                 ,
-  .sram_en    (inst_sram_en)          ,
-  .sram_wen   (inst_sram_wen)         ,
-  .sram_addr  (inst_sram_addr[13:2])  ,
-  .sram_wdata (inst_sram_wdata)       ,
-  .sram_rdata (inst_sram_rdata)
+  .clka   (clk)                   ,
+  .ena    (inst_sram_en)          ,
+  .wea    (|inst_sram_wen)        ,
+  .addra  (inst_sram_addr[13:2])  ,
+  .dina   (inst_sram_wdata)       ,
+  .douta  (inst_sram_rdata)
 );
 
 bridge_1x2 u_bridge_1x2(
@@ -106,13 +105,12 @@ bridge_1x2 u_bridge_1x2(
 
 // data sram
 sram u_data_sram(
-  .clk        (clk)                   ,
-  .reset      (reset)                 ,
-  .sram_en    (data_sram_en)          ,
-  .sram_wen   (data_sram_wen)         ,
-  .sram_addr  (data_sram_addr[13:2])  ,
-  .sram_wdata (data_sram_wdata)       ,
-  .sram_rdata (data_sram_rdata)
+  .clka  (clk)                   ,
+  .ena   (data_sram_en)          ,
+  .wea   (|data_sram_wen)        ,
+  .addra (data_sram_addr[13:2])  ,
+  .dina  (data_sram_wdata)       ,
+  .douta (data_sram_rdata)
 );
 
 // confreg
