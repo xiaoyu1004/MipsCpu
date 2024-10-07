@@ -4,9 +4,9 @@ module Top(
   input                         clk               ,
   input                         reset             ,
   // led
-  output [31                :0] led               ,
+  output [15                :0] led               ,
   // smg
-  output [31                :0] smg               
+  output [11                :0] smg               
   // debug
 `ifdef DEBUG
   ,

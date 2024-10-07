@@ -13,8 +13,8 @@ module confreg(
   input   [31                :0] conf_wdata    ,
   output  [31                :0] conf_rdata    ,
   // read and write to device on board
-  output  [31                :0] led           ,
-  output  [31                :0] smg           
+  output  [15                :0] led           ,
+  output  [11                :0] smg           
 );
 
 // read
@@ -54,10 +54,10 @@ sirv_gnrl_dfflr #(
   .qout (led_data)
 );
 
-assign led = led_data;
+assign led = led_data[15:0];
 
 // smg reg
-wire [31:0] seg_data;
+wire [31:0] smg_data;
 wire write_seg = conf_we && (conf_addr == `SEG_ADDR);
 
 sirv_gnrl_dfflr #(
@@ -67,9 +67,9 @@ sirv_gnrl_dfflr #(
   .reset(reset),
   .lden (write_seg),
   .dnxt (conf_wdata),
-  .qout (seg_data)
+  .qout (smg_data)
 );
 
-assign smg = seg_data;
+assign smg = smg_data[11:0];
 
 endmodule
