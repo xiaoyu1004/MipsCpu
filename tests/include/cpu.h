@@ -3,8 +3,8 @@
 
 #include "regdef.h"
 
-#define TIME_FREQ 100
-#define CYCLE_NUMS_1S (TIME_FREQ * 1000 * 1000)
+#define TIME_FREQ 50
+#define CYCLE_NUMS_1S (TIME_FREQ * 1000 * 500)
 
 // #define TIME_FREQ 100
 // #define CYCLE_NUMS_1S (TIME_FREQ * 1000 * 1000)

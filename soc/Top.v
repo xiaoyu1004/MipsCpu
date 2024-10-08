@@ -16,6 +16,21 @@ module Top(
   output [31                :0] debug_wb_rf_wdata 
 `endif
 );
+
+// clk
+wire clk_lock;
+wire pll_clk;
+wire cpu_clk;
+
+cpuclk u_clk (
+  .clk_in1    (clk)      ,
+  .reset      (reset)    ,
+  .locked     (clk_lock) ,
+  .clk_out1   (pll_clk)
+);
+
+assign cpu_clk = pll_clk & clk_lock;
+
 // inst sram
 wire                       inst_sram_en    ;
 wire [3:0]                 inst_sram_wen   ;
@@ -46,7 +61,7 @@ wire [`XLEN-1:0]           conf_rdata      ;
 
 // pipeline
 cpu_pipeline u_pipe(
-  .clk                (clk)               ,
+  .clk                (cpu_clk)           ,
   .reset              (reset)             ,
   // inst sram
   .inst_sram_en       (inst_sram_en)      ,
@@ -72,7 +87,7 @@ cpu_pipeline u_pipe(
 
 // inst sram
 sram u_inst_sram(
-  .clka   (clk)                   ,
+  .clka   (cpu_clk)               ,
   .ena    (inst_sram_en)          ,
   .wea    (|inst_sram_wen)        ,
   .addra  (inst_sram_addr[13:2])  ,
@@ -81,7 +96,7 @@ sram u_inst_sram(
 );
 
 bridge_1x2 u_bridge_1x2(
-  .clk             (clk)            ,
+  .clk             (cpu_clk)        ,
   .reset           (reset)          ,
   // master : cpu data
   .cpu_data_en     (cpu_data_en)    ,
@@ -105,7 +120,7 @@ bridge_1x2 u_bridge_1x2(
 
 // data sram
 sram u_data_sram(
-  .clka  (clk)                   ,
+  .clka  (cpu_clk)               ,
   .ena   (data_sram_en)          ,
   .wea   (|data_sram_wen)        ,
   .addra (data_sram_addr[13:2])  ,
@@ -115,7 +130,7 @@ sram u_data_sram(
 
 // confreg
 confreg u_confreg(
-  .clk        (clk)       ,
+  .clk        (cpu_clk)   ,
   .reset      (reset)     ,
   // read and write from cpu
   .conf_en    (conf_en)   ,

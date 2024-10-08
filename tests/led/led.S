@@ -13,19 +13,19 @@ locate:
 	.set noreorder
     LI(a0, LED_ADDR)
 
-    # LI(t0, 0xffff)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0xffff)
+    sw t0, 0(a0)
+    NOP4
 
-    # jal wait_1s
-    # NOP4
+    jal wait_1s
+    NOP4
 
-    # LI(t0, 0x0)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0x0)
+    sw t0, 0(a0)
+    NOP4
 
-    # jal wait_1s
-    # NOP4
+    jal wait_1s
+    NOP4
 
     LI(t0, 0x1)
     sw t0, 0(a0)
@@ -34,53 +34,56 @@ locate:
     jal wait_1s
     NOP4
 
-    # LI(t0, 0x2)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0x2)
+    sw t0, 0(a0)
+    NOP4
 
-    # jal wait_1s
-    # NOP
+    jal wait_1s
+    NOP4
 
-    # LI(t0, 0x4)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0x4)
+    sw t0, 0(a0)
+    NOP4
 
-    # jal wait_1s
-    # NOP
+    jal wait_1s
+    NOP
 
-    # LI(t0, 0x8)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0x8)
+    sw t0, 0(a0)
+    NOP4
 
-    # jal wait_1s
-    # NOP
+    jal wait_1s
+    NOP4
 
-    # LI(t0, 0x10)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0x10)
+    sw t0, 0(a0)
+    NOP4
 
-    # jal wait_1s
-    # NOP
+    jal wait_1s
+    NOP4
 
-    # LI(t0, 0x20)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0x20)
+    sw t0, 0(a0)
+    NOP4
 
-    # jal wait_1s
-    # NOP
+    jal wait_1s
+    NOP4
 
-    # LI(t0, 0x40)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0x40)
+    sw t0, 0(a0)
+    NOP4
 
-    # jal wait_1s
-    # NOP
+    jal wait_1s
+    NOP4
 
-    # LI(t0, 0x80)
-    # sw t0, 0(a0)
-    # NOP4
+    LI(t0, 0x80)
+    sw t0, 0(a0)
+    NOP4
 
-    b locate
+    jal wait_1s
+    NOP4
+
+    b end
     NOP4
 
 wait_1s:                                                                              
