@@ -83,7 +83,8 @@ locate:
     jal wait_1s
     NOP4
 
-    b locate
+    # b locate
+    b end
     NOP4
 
 wait_1s:                                                                              

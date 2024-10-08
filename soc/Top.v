@@ -24,7 +24,6 @@ wire cpu_clk;
 
 cpuclk u_clk (
   .clk_in1    (clk)      ,
-  .reset      (reset)    ,
   .locked     (clk_lock) ,
   .clk_out1   (pll_clk)
 );
