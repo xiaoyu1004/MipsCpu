@@ -10,7 +10,7 @@
 // #define CYCLE_NUMS_1S (TIME_FREQ * 1000 * 1000)
 
 #define LED_ADDR 0xffff0000
-#define SEG_ADDR 0xffff0001
+#define SMG_ADDR 0xffff0001
 
 #define NOP addu zero, zero, zero
 #define NOP4                                                                                       \

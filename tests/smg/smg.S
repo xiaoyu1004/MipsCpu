@@ -11,72 +11,142 @@ start:
 
 locate:
 	.set noreorder
-    LI(a0, LED_ADDR)
+    LI(a0, SMG_ADDR)
 
-    LI(t0, 0xffff)
+    // 0000
+    LI(t0, 0x1fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x2fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x4fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x8fc)
     sw t0, 0(a0)
     NOP4
 
     jal wait_1s
     NOP4
 
-    LI(t0, 0x0)
+    // 0001
+    LI(t0, 0x160)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x2fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x4fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x8fc)
     sw t0, 0(a0)
     NOP4
 
     jal wait_1s
     NOP4
 
-    LI(t0, 0x1)
+    // 0002
+    LI(t0, 0x1da)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x2fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x4fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x8fc)
     sw t0, 0(a0)
     NOP4
 
     jal wait_1s
     NOP4
 
-    LI(t0, 0x2)
+    // 0003
+    LI(t0, 0x1f2)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x2fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x4fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x8fc)
     sw t0, 0(a0)
     NOP4
 
     jal wait_1s
     NOP4
 
-    LI(t0, 0x4)
+    // 0004
+    LI(t0, 0x166)
     sw t0, 0(a0)
     NOP4
 
-    jal wait_1s
-    NOP
-
-    LI(t0, 0x8)
+    LI(t0, 0x2fc)
     sw t0, 0(a0)
     NOP4
 
-    jal wait_1s
-    NOP4
-
-    LI(t0, 0x10)
+    LI(t0, 0x4fc)
     sw t0, 0(a0)
     NOP4
 
-    jal wait_1s
-    NOP4
-
-    LI(t0, 0x20)
+    LI(t0, 0x8fc)
     sw t0, 0(a0)
     NOP4
 
     jal wait_1s
     NOP4
 
-    LI(t0, 0x40)
+    // 0005
+    LI(t0, 0x1b6)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x2fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x4fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x8fc)
     sw t0, 0(a0)
     NOP4
 
     jal wait_1s
     NOP4
 
-    LI(t0, 0x80)
+    // 0006
+    LI(t0, 0x1be)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x2fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x4fc)
+    sw t0, 0(a0)
+    NOP4
+
+    LI(t0, 0x8fc)
     sw t0, 0(a0)
     NOP4
 

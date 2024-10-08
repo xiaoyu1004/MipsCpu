@@ -19,9 +19,9 @@ module confreg(
 
 // read
 wire read_led = conf_en && (conf_addr == `LED_ADDR);
-wire read_seg = conf_en && (conf_addr == `SEG_ADDR);
+wire read_smg = conf_en && (conf_addr == `SEG_ADDR);
 
-wire [31:0] conf_rdata_mux = ({32{read_led}} & {16'b0, led}) | ({32{read_seg}} & {20'b0, smg});
+wire [31:0] conf_rdata_mux = ({32{read_led}} & {16'b0, led}) | ({32{read_smg}} & {20'b0, smg});
 
 wire [31:0] conf_rdata_r;
 

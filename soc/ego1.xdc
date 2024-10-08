@@ -1,6 +1,4 @@
 create_clock -period 10.000 -name clk -waveform {0.000 5.000} [get_ports clk]
-# set_input_delay -clock clk [expr 4.0] [all_inputs]
-# set_output_delay -clock clk [expr 3.0] [all_outputs]
 
 set_property -dict {PACKAGE_PIN P17 IOSTANDARD LVCMOS33} [ get_ports clk ]
 set_property -dict {PACKAGE_PIN P15 IOSTANDARD LVCMOS33} [ get_ports reset ]
@@ -25,10 +23,10 @@ set_property -dict {PACKAGE_PIN M1 IOSTANDARD LVCMOS33} [get_ports {led[1]}]
 set_property -dict {PACKAGE_PIN K3 IOSTANDARD LVCMOS33} [get_ports {led[0]}]
 
 # smg
-set_property -dict {PACKAGE_PIN G6 IOSTANDARD LVCMOS33} [ get_ports smg[11] ]
-set_property -dict {PACKAGE_PIN E1 IOSTANDARD LVCMOS33} [ get_ports smg[10] ]
-set_property -dict {PACKAGE_PIN F1 IOSTANDARD LVCMOS33} [ get_ports smg[9] ]
-set_property -dict {PACKAGE_PIN G1 IOSTANDARD LVCMOS33} [ get_ports smg[8] ]
+set_property -dict {PACKAGE_PIN G1 IOSTANDARD LVCMOS33} [ get_ports smg[11] ]
+set_property -dict {PACKAGE_PIN F1 IOSTANDARD LVCMOS33} [ get_ports smg[10] ]
+set_property -dict {PACKAGE_PIN E1 IOSTANDARD LVCMOS33} [ get_ports smg[9] ]
+set_property -dict {PACKAGE_PIN G6 IOSTANDARD LVCMOS33} [ get_ports smg[8] ]
 
 set_property -dict {PACKAGE_PIN D4 IOSTANDARD LVCMOS33} [ get_ports smg[7] ]
 set_property -dict {PACKAGE_PIN E3 IOSTANDARD LVCMOS33} [ get_ports smg[6] ]
