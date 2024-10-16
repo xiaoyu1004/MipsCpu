@@ -1,34 +1,38 @@
 `include "cpu.vh"
 
 module id_stage (
-  input                         clk           ,
-  input                         reset         ,
+  input                         clk                 ,
+  input                         reset               ,
   // allowin
-  input                         es_allowin    ,
-  output                        ds_allowin    ,
+  input                         es_allowin          ,
+  output                        ds_allowin          ,
   // from fs
-  input                         fs_to_ds_valid,
-  input  [`FS_TO_DS_BUS_WD-1:0] fs_to_ds_bus  ,
+  input                         fs_to_ds_valid      ,
+  input  [`FS_TO_DS_BUS_WD-1:0] fs_to_ds_bus        ,
   // to fs
-  output [`BR_BUS_WD      -1:0] br_bus        ,
+  output [`BR_BUS_WD      -1:0] br_bus              ,
   // to es
-  output                        ds_to_es_valid,
-  output [`DS_TO_ES_BUS_WD-1:0] ds_to_es_bus  ,
+  output                        ds_to_es_valid      ,
+  output [`DS_TO_ES_BUS_WD-1:0] ds_to_es_bus        ,
   // to rf
-  output [4                 :0] rs_addr       ,
-  output [4                 :0] rt_addr       ,
+  output [4                 :0] rs_addr             ,
+  output [4                 :0] rt_addr             ,
   // from rf
-  input  [31                :0] rs_data       ,
-  input  [31                :0] rt_data       ,
+  input  [31                :0] rs_data             ,
+  input  [31                :0] rt_data             ,
   // from ex
-  input                         es_valid      ,
-  input  [4                 :0] es_rf_waddr   ,
+  input                         es_to_ds_rf_we      ,
+  input  [4                 :0] es_to_ds_rf_waddr   ,
+  input  [31                :0] es_to_ds_rf_wdata   ,
+  input                         es_to_ds_load_op    ,
   // from mem
-  input                         ms_valid      ,
-  input  [4                 :0] ms_rf_waddr   ,
+  input                         ms_to_ds_rf_we      ,
+  input  [4                 :0] ms_to_ds_rf_waddr   ,
+  input  [31                :0] ms_to_ds_rf_wdata   ,
   // from wb
-  input                         ws_valid      ,
-  input  [4                 :0] ws_rf_waddr    
+  input                         ws_to_ds_rf_we      ,
+  input  [4                 :0] ws_to_ds_rf_waddr   ,
+  input  [31                :0] ws_to_ds_rf_wdata
 );
 
 // ctrl signals
@@ -49,16 +53,6 @@ wire [4:0]        rf_waddr;
 
 wire ds_valid;
 wire ds_ready_go;
-
-wire rs_hazard = ((es_valid && rs_addr == es_rf_waddr) || 
-                  (ms_valid && rs_addr == ms_rf_waddr) ||
-                  (ws_valid && rs_addr == ws_rf_waddr)) && rs_addr != 5'b0;
-
-wire rt_hazard = ((es_valid && rt_addr == es_rf_waddr) || 
-                  (ms_valid && rt_addr == ms_rf_waddr) ||
-                  (ws_valid && rt_addr == ws_rf_waddr)) && rt_addr != 5'b0;
-
-assign ds_ready_go = !rs_hazard && !rt_hazard;
 
 assign ds_allowin = (ds_ready_go && es_allowin) || ~ds_valid;
 
@@ -168,6 +162,30 @@ wire dst_is_rt  = inst_addiu | inst_lw | inst_lui;
 
 assign rf_waddr = dst_is_r31 ? 5'd31 : (dst_is_rt ? rt_addr : rd_addr);
 
+wire rs_addr_nzero = rs_addr != 5'b0;
+wire rt_addr_nzero = rt_addr != 5'b0;
+
+// rs data forward
+wire es_fwd_rs_match = es_to_ds_rf_we && (es_to_ds_rf_waddr == rs_addr) && rs_addr_nzero;
+wire ms_fwd_rs_match = ms_to_ds_rf_we && (ms_to_ds_rf_waddr == rs_addr) && rs_addr_nzero;
+wire ws_fwd_rs_match = ws_to_ds_rf_we && (ws_to_ds_rf_waddr == rs_addr) && rs_addr_nzero;
+
+// rt data forward
+wire es_fwd_rt_match = es_to_ds_rf_we && (es_to_ds_rf_waddr == rt_addr) && rt_addr_nzero;
+wire ms_fwd_rt_match = ms_to_ds_rf_we && (ms_to_ds_rf_waddr == rt_addr) && rt_addr_nzero;
+wire ws_fwd_rt_match = ws_to_ds_rf_we && (ws_to_ds_rf_waddr == rt_addr) && rt_addr_nzero;
+
+wire load_hzard     = (es_fwd_rs_match || es_fwd_rt_match) && es_to_ds_load_op;
+assign ds_ready_go  = ~load_hzard;
+
+wire [31:0] ds_rs_data = es_fwd_rs_match ? es_to_ds_rf_wdata :
+                    (ms_fwd_rs_match ? ms_to_ds_rf_wdata : 
+                    (ws_fwd_rs_match ? ws_to_ds_rf_wdata : rs_data));
+
+wire [31:0] ds_rt_data = es_fwd_rt_match ? es_to_ds_rf_wdata :
+                    (ms_fwd_rt_match ? ms_to_ds_rf_wdata : 
+                    (ws_fwd_rt_match ? ws_to_ds_rf_wdata : rt_data));
+
 // to es
 assign ds_to_es_valid = ds_valid && ds_ready_go;
 assign ds_to_es_bus   = {alu_op,
@@ -180,12 +198,12 @@ assign ds_to_es_bus   = {alu_op,
                         rf_we,
                         imm,
                         rf_waddr,
-                        rs_data,
-                        rt_data,
+                        ds_rs_data,
+                        ds_rt_data,
                         ds_pc};
 
 // for branch
-wire        rs_eq_rt        = rs_data == rt_data;
+wire        rs_eq_rt        = ds_rs_data == ds_rt_data;
 wire [31:0] fs_pc           = fs_to_ds_bus[63:32];
 wire [31:0] imm_shift_sext  = {{16{imm[13]}}, imm[13:0], 2'b0};
 wire [31:0] jal_target      = {fs_pc[31:28], jidx, 2'b0};
@@ -194,7 +212,7 @@ wire        br_taken;
 wire [31:0] br_target;
 
 assign br_taken  = ((inst_beq && rs_eq_rt) || (inst_bne && ~rs_eq_rt) || inst_jal || inst_jr) && ds_valid;
-assign br_target = (inst_beq || inst_bne) ? (fs_pc + imm_shift_sext) : (inst_jal ? jal_target : (inst_jr ? rs_data : 32'b0));
+assign br_target = (inst_beq || inst_bne) ? (fs_pc + imm_shift_sext) : (inst_jal ? jal_target : (inst_jr ? ds_rs_data : 32'b0));
 
 assign br_bus = {br_taken, br_target};
 

@@ -16,146 +16,49 @@ locate:
     // 0000
     LI(t0, 0x1fc)
     sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x2fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x4fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x8fc)
-    sw t0, 0(a0)
-    NOP4
 
     jal wait_1s
-    NOP4
 
     // 0001
     LI(t0, 0x160)
     sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x2fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x4fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x8fc)
-    sw t0, 0(a0)
-    NOP4
 
     jal wait_1s
-    NOP4
 
     // 0002
     LI(t0, 0x1da)
     sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x2fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x4fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x8fc)
-    sw t0, 0(a0)
-    NOP4
 
     jal wait_1s
-    NOP4
 
     // 0003
     LI(t0, 0x1f2)
     sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x2fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x4fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x8fc)
-    sw t0, 0(a0)
-    NOP4
 
     jal wait_1s
-    NOP4
 
     // 0004
     LI(t0, 0x166)
     sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x2fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x4fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x8fc)
-    sw t0, 0(a0)
-    NOP4
 
     jal wait_1s
-    NOP4
 
     // 0005
     LI(t0, 0x1b6)
     sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x2fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x4fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x8fc)
-    sw t0, 0(a0)
-    NOP4
 
     jal wait_1s
-    NOP4
 
     // 0006
     LI(t0, 0x1be)
     sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x2fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x4fc)
-    sw t0, 0(a0)
-    NOP4
-
-    LI(t0, 0x8fc)
-    sw t0, 0(a0)
-    NOP4
 
     jal wait_1s
-    NOP4
+    NOP
 
     # b locate
     b end
-    NOP4
+    NOP
 
 wait_1s:                                                                              
     LI(t2, CYCLE_NUMS_1S);                                                                         

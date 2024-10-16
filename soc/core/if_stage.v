@@ -47,7 +47,7 @@ wire to_fs_valid  = reset;
 wire fs_valid;
 
 wire fs_ready_go  = 1'b1;
-wire fs_allowin   = fs_ready_go && ds_allowin || ~fs_valid;
+wire fs_allowin   = (fs_ready_go && ds_allowin) || ~fs_valid;
 
 // fs_valid
 sirv_gnrl_dfflr #(

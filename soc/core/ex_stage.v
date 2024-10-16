@@ -1,27 +1,29 @@
 `include "cpu.vh"
 
 module ex_stage(
-  input                         clk             ,
-  input                         reset           ,
+  input                         clk                 ,
+  input                         reset               ,
   // allouin
-  input                         ms_allowin      ,
-  output                        es_allowin      ,
+  input                         ms_allowin          ,
+  output                        es_allowin          ,
   // from ds
-  input                         ds_to_es_valid  ,
-  input [`DS_TO_ES_BUS_WD-1:0]  ds_to_es_bus    ,
+  input                         ds_to_es_valid      ,
+  input [`DS_TO_ES_BUS_WD-1:0]  ds_to_es_bus        ,
   // to ms
-  output                        es_to_ms_valid  ,
-  output [`ES_TO_MS_BUS_WD-1:0] es_to_ms_bus    ,
+  output                        es_to_ms_valid      ,
+  output [`ES_TO_MS_BUS_WD-1:0] es_to_ms_bus        ,
   // to data sram
-  output                        cpu_data_en     ,
-  output [3                 :0] cpu_data_wen    ,
-  output [31                :0] cpu_data_addr   ,
-  output [31                :0] cpu_data_wdata  ,
+  output                        cpu_data_en         ,
+  output [3                 :0] cpu_data_wen        ,
+  output [31                :0] cpu_data_addr       ,
+  output [31                :0] cpu_data_wdata      ,
   // to ds
-  output                        es_valid        ,
-  output [4                 :0] es_rf_waddr                           
+  output                        es_to_ds_rf_we      ,
+  output [4                 :0] es_to_ds_rf_waddr   ,                 
+  output [31                :0] es_to_ds_rf_wdata   ,
+  output                        es_to_ds_load_op                     
 );
-// wire es_valid;
+wire es_valid;
 wire es_ready_go  = 1'b1;
 
 assign es_allowin = (es_ready_go && ms_allowin) || ~es_valid;
@@ -59,11 +61,10 @@ wire              es_src2_is_8;
 // mem
 wire              es_load_op;
 wire              es_mem_we;
-// wb
-wire              es_rf_we;
 
 wire [15:0]       es_imm;
-// wire [4:0]        es_rf_waddr;
+wire              es_rf_we;
+wire [4:0]        es_rf_waddr;
 wire [31:0]       es_rs_data;
 wire [31:0]       es_rt_data;
 wire [`XLEN-1:0]  es_pc;
@@ -106,6 +107,12 @@ assign es_to_ms_bus   = {es_pc,
                          es_rf_waddr,
                          es_alu_result
                          };
+
+// forward to ds
+assign es_to_ds_rf_we       = es_valid && es_rf_we;
+assign es_to_ds_rf_waddr    = es_rf_waddr;
+assign es_to_ds_rf_wdata    = es_alu_result;
+assign es_to_ds_load_op     = es_valid && es_load_op;
 
 // for data sram
 assign cpu_data_en     = es_load_op;

@@ -1,13 +1,13 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Tue Oct 08 15:45:33 2024
+[*] Wed Oct 16 17:42:09 2024
 [*]
-[dumpfile] "\\wsl$\Ubuntu-20.04\home\xiaoyu\workspace\MipsCpu\tests\smg.vcd"
+[dumpfile] "\\wsl$\Ubuntu-20.04\home\xiaoyu\workspace\MipsCpu\tests\sw.vcd"
 [savefile] "\\wsl$\Ubuntu-20.04\home\xiaoyu\workspace\MipsCpu\tests\rtlsim_cfg.gtkw"
-[timestart] 142
+[timestart] 27
 [size] 1920 1057
 [pos] -1 -1
-*-1.921998 89 10 12 14 16 18 20 22 64 60 62 52 54 50 56 58 72 74 76 78 80 82 84 86 88 -1 -1
+*-1.921998 22 10 12 14 16 18 30 26 64 60 62 52 54 50 56 58 72 74 76 78 80 82 84 86 88 34 28
 [treeopen] TOP.
 [treeopen] TOP.Top.
 [treeopen] TOP.Top.u_pipe.
@@ -33,7 +33,6 @@ TOP.Top.conf_rdata[31:0]
 TOP.Top.conf_wdata[31:0]
 TOP.Top.conf_wen[3:0]
 TOP.Top.led[15:0]
-@23
 TOP.Top.smg[11:0]
 @1000200
 -top
@@ -117,8 +116,18 @@ TOP.Top.u_pipe.u_id.inst_lw
 TOP.Top.u_pipe.u_id.inst_sw
 @22
 TOP.Top.u_pipe.u_id.rs_addr[4:0]
+@28
+TOP.Top.u_pipe.u_id.es_fwd_rs_match
+TOP.Top.u_pipe.u_id.ms_fwd_rs_match
+TOP.Top.u_pipe.u_id.ws_fwd_rs_match
+@22
 TOP.Top.u_pipe.u_id.rs_data[31:0]
 TOP.Top.u_pipe.u_id.rt_addr[4:0]
+@28
+TOP.Top.u_pipe.u_id.es_fwd_rt_match
+TOP.Top.u_pipe.u_id.ms_fwd_rt_match
+TOP.Top.u_pipe.u_id.ws_fwd_rt_match
+@22
 TOP.Top.u_pipe.u_id.rt_data[31:0]
 @28
 TOP.Top.u_pipe.u_id.rf_we
@@ -137,8 +146,51 @@ TOP.Top.u_pipe.u_ex.es_allowin
 @22
 TOP.Top.u_pipe.u_ex.es_alu_op[11:0]
 TOP.Top.u_pipe.u_ex.es_alu_src1[31:0]
+@28
+TOP.Top.u_pipe.u_ex.es_src1_is_sa
+TOP.Top.u_pipe.u_ex.es_src1_is_pc
+@22
+TOP.Top.u_pipe.u_ex.es_rs_data[31:0]
 TOP.Top.u_pipe.u_ex.es_alu_src2[31:0]
+@28
+TOP.Top.u_pipe.u_ex.es_src2_is_imm
+@c00022
 TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+@28
+(0)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(1)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(2)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(3)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(4)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(5)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(6)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(7)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(8)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(9)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(10)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(11)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(12)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(13)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(14)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(15)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(16)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(17)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(18)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(19)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(20)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(21)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(22)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(23)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(24)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(25)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(26)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(27)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(28)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(29)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(30)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+(31)TOP.Top.u_pipe.u_ex.es_alu_result[31:0]
+@1401200
+-group_end
 @c00022
 TOP.Top.u_pipe.u_ex.es_imm[15:0]
 @28
@@ -179,11 +231,13 @@ TOP.Top.u_pipe.u_mem.ms_allowin
 TOP.Top.u_pipe.u_mem.ms_to_ws_valid
 TOP.Top.u_pipe.u_mem.ms_load_op
 TOP.Top.u_pipe.u_mem.ms_ready_go
+@22
+TOP.Top.u_pipe.u_mem.cpu_data_rdata[31:0]
 @1000200
 -mem_stage
 @800200
 -wb_stage
-@28
+@29
 TOP.Top.u_pipe.u_wb.ws_valid
 @22
 TOP.Top.u_pipe.u_wb.ws_pc[31:0]
@@ -221,5 +275,31 @@ TOP.Top.u_confreg.write_led
 TOP.Top.u_confreg.write_seg
 @1000200
 -confreg
+@800200
+-data_sram
+@28
+TOP.Top.u_data_sram.ena
+@22
+TOP.Top.u_data_sram.addra[11:0]
+TOP.Top.u_data_sram.douta[31:0]
+@28
+TOP.Top.u_data_sram.wea
+@22
+TOP.Top.u_data_sram.dina[31:0]
+@1000200
+-data_sram
+@800200
+-regfile
+@22
+TOP.Top.u_pipe.u_regfile.raddr1[4:0]
+TOP.Top.u_pipe.u_regfile.rdata1[31:0]
+TOP.Top.u_pipe.u_regfile.raddr2[4:0]
+TOP.Top.u_pipe.u_regfile.rdata2[31:0]
+TOP.Top.u_pipe.u_regfile.rf_waddr[4:0]
+TOP.Top.u_pipe.u_regfile.rf_wdata[31:0]
+@28
+TOP.Top.u_pipe.u_regfile.rf_we
+@1000200
+-regfile
 [pattern_trace] 1
 [pattern_trace] 0
